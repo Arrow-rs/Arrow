@@ -44,8 +44,12 @@ impl<'a> serde::Serializer for &'a mut Serializer {
         Ok(())
     }
 
+<<<<<<< Updated upstream:src/serde/ser.rs
     fn serialize_u8(self, v: u8) -> Result<Self::Ok, Self::Error> {
         self.output.push(v);
+=======
+    fn serialize_u8(self, _v: u8) -> Result<Self::Ok, Self::Error> {
+>>>>>>> Stashed changes:arrow-protocol/src/serde/ser.rs
         Ok(())
     }
 
@@ -115,8 +119,11 @@ impl<'a> serde::Serializer for &'a mut Serializer {
         variant_index: u32,
         _: &'static str,
     ) -> Result<Self::Ok, Self::Error> {
+<<<<<<< Updated upstream:src/serde/ser.rs
         self.output
             .append(&mut variant_index.to_be_bytes().to_vec());
+=======
+>>>>>>> Stashed changes:arrow-protocol/src/serde/ser.rs
         Ok(())
     }
 
