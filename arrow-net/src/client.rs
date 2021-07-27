@@ -95,15 +95,17 @@ impl Client {
                     | PacketKind::StatusRequest
                     | PacketKind::StatusResponse(_)
                     | PacketKind::StatusPing(_)
-                    | PacketKind::StatusPong(_)
-                    | PacketKind::JoinGame { .. }
-                    | PacketKind::ServerDifficulty(..)
-                    | PacketKind::HeldItemChange(_),
+                    | PacketKind::StatusPong(_),
                 )) => {
                     error!("Received packet from other protocol state.");
                     return;
                 }
-                Ok(Some(PacketKind::DeclareRecipes(_))) => {
+                Ok(Some(
+                    PacketKind::DeclareRecipes(_)
+                    | PacketKind::JoinGame { .. }
+                    | PacketKind::ServerDifficulty(..)
+                    | PacketKind::HeldItemChange(_),
+                )) => {
                     error!("Received client side packet.");
                 }
                 Ok(None) => return,
