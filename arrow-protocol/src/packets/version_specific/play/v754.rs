@@ -91,11 +91,15 @@ pub mod clientbound {
     }
 
     impl<'a> Packet for JoinGame<'a> {
-        fn id(_: i32) -> i32
+        fn id(protocol_version: i32) -> i32
         where
             Self: Sized,
         {
-            0x24
+            if protocol_version <= 754 {
+                0x24
+            } else {
+                0x26
+            }
         }
 
         fn data_bytes(&self) -> Result<Vec<u8>, PacketError> {

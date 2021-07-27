@@ -26,7 +26,7 @@ pub mod clientbound {
                 471..=549 => 0x5A,
                 550..=720 => 0x5B,
                 721..=754 => 0x5A,
-                _ => unreachable!(),
+                _ => 0x65,
             }
         }
 

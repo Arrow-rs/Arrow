@@ -23,7 +23,9 @@ pub mod clientbound {
 
     impl Packet for HeldItemChange {
         fn id(version: i32) -> i32 {
-            if version >= 721 || (471..550).contains(&version) {
+            if version >= 755 {
+                0x48
+            } else if version >= 721 || (471..550).contains(&version) {
                 0x3F
             } else if version >= 550 {
                 0x40

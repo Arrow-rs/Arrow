@@ -285,7 +285,7 @@ impl PacketKind {
                         recipes: recipes.into(),
                     },
                 )),
-                453..=754 => Ok(Box::new(
+                453..=756 => Ok(Box::new(
                     version_specific::play::v453::clientbound::DeclareRecipes {
                         recipes: recipes.into(),
                     },

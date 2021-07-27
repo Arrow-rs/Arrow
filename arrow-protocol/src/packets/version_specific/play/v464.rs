@@ -96,7 +96,7 @@ pub mod clientbound {
                 return 0x41;
             } else if protocol_version < 318 {
                 return 0x0D;
-            } else if protocol_version < 332 {
+            } else if protocol_version < 332 || protocol_version > 754 {
                 return 0x0E;
             }
             0x0D
