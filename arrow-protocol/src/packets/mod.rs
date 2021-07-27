@@ -15,11 +15,8 @@ use uuid::Uuid;
 use self::{
     common::*,
     error::PacketError,
-    types::{Difficulty, Gamemode, LevelType, Recipe},
-    version_specific::types::{
-        v47::Dimension,
-        v754::{DimensionCodec, DimensionType},
-    },
+    types::{Difficulty, DimensionCodec, DimensionType, Gamemode, LevelType, Recipe},
+    version_specific::types::v47::Dimension,
 };
 use crate::serde::{de::Deserializer, varint::VarInt};
 
@@ -186,7 +183,27 @@ impl PacketKind {
                 is_debug,
                 is_flat,
             } => {
-                if protocol_version >= 754 {
+                if protocol_version >= 755 {
+                    Ok(Box::new(
+                        version_specific::play::v755::clientbound::JoinGame::new(
+                            entity_id,
+                            is_hardcore,
+                            gamemode as u8,
+                            previous_gamemode as i8,
+                            world_names,
+                            dimension_codec.into(),
+                            dimension.into(),
+                            world_name,
+                            hashed_seed,
+                            VarInt(max_players),
+                            view_distance,
+                            reduced_debug_info,
+                            enable_respawn_screen,
+                            is_debug,
+                            is_flat,
+                        ),
+                    ))
+                } else if protocol_version == 754 {
                     Ok(Box::new(
                         version_specific::play::v754::clientbound::JoinGame::new(
                             entity_id,
@@ -194,8 +211,8 @@ impl PacketKind {
                             gamemode as u8,
                             previous_gamemode as i8,
                             world_names,
-                            dimension_codec,
-                            dimension,
+                            dimension_codec.into(),
+                            dimension.into(),
                             world_name,
                             hashed_seed,
                             VarInt(max_players),

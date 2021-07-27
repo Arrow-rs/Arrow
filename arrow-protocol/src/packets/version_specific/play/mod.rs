@@ -18,3 +18,5 @@ pub mod v47;
 pub mod v552;
 /// All `play` packets for protocol version 754 and above.
 pub mod v754;
+/// All `play` packets for protocol version 755 and above.
+pub mod v755;

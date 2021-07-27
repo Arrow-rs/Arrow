@@ -9,7 +9,7 @@ pub mod clientbound {
     use crate::{
         packets::{
             types::{LengthPrefixedVec, Nbt},
-            version_specific::types::v754::{DimensionCodec, DimensionType},
+            version_specific::types::v755::{DimensionCodec, DimensionType},
         },
         serde::varint::VarInt,
     };
@@ -95,7 +95,7 @@ pub mod clientbound {
         where
             Self: Sized,
         {
-            0x24
+            0x26
         }
 
         fn data_bytes(&self) -> Result<Vec<u8>, PacketError> {
