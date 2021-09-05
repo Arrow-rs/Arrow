@@ -6,6 +6,8 @@ pub mod error;
 pub mod types;
 /// All version specific packets and types.
 pub mod version_specific;
+/// All protocol version numbers for release versions.
+pub mod version;
 
 use std::fmt::Display;
 
@@ -16,7 +18,7 @@ use self::{
     common::*,
     error::PacketError,
     types::{Difficulty, DimensionCodec, DimensionType, Gamemode, LevelType, Recipe},
-    version_specific::types::v47::Dimension,
+    version_specific::types::v1_8::Dimension,
 };
 use crate::serde::{de::Deserializer, varint::VarInt};
 
@@ -143,11 +145,11 @@ impl PacketKind {
             LoginSuccess(uuid, name) => {
                 if protocol_version >= 707 {
                     Ok(Box::new(
-                        version_specific::login::v707::clientbound::LoginSuccess::new(uuid, name),
+                        version_specific::login::v1_16::clientbound::LoginSuccess::new(uuid, name),
                     ))
                 } else {
                     Ok(Box::new(
-                        version_specific::login::v47::clientbound::LoginSuccess::new(
+                        version_specific::login::v1_8::clientbound::LoginSuccess::new(
                             uuid.to_hyphenated().to_string(),
                             name,
                         ),
