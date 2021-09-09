@@ -9,7 +9,7 @@ pub mod clientbound {
     use crate::{
         packets::{
             types::{LengthPrefixedVec, Nbt},
-            version_specific::types::v754::{DimensionCodec, DimensionType},
+            version_specific::types::v1_16_4::{DimensionCodec, DimensionType},
         },
         serde::varint::VarInt,
     };

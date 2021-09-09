@@ -4,19 +4,19 @@ pub mod clientbound {
 
     use crate::packets::types::LevelType;
     use crate::{
-        packets::{error::PacketError, Packet},
+        packets::{error::PacketError, version::*, Packet},
         serde::ser::Serializer,
     };
 
-    /// The [JoinGame](https://wiki.vg/index.php?title=Protocol&oldid=7368#Join_Game) packet for version 47 or higher.
+    /// The [JoinGame](https://wiki.vg/index.php?title=Pre-release_protocol&oldid=7552#Join_Game) packet for version 108 or higher.
     #[derive(Serialize, Deserialize)]
     pub struct JoinGame {
         /// This is the player's Entity ID (EID).
         pub entity_id: i32,
         /// 0: survival, 1: creative, 2: adventure, 3: spectator. Bit 3 is the hardcore flag
         pub gamemode: u8,
-        /// -1: Nether, 0: Overworld, 1: End
-        pub dimension: i8,
+        /// -1: Nether, 0: Overworld, 1: End; also, note that this is not a VarInt but instead a regular int.
+        pub dimension: i32,
         /// 0: peaceful, 1: easy, 2: normal, 3: hard
         pub difficulty: u8,
         /// Name of the world being spawned into.
@@ -32,7 +32,7 @@ pub mod clientbound {
         pub fn new(
             entity_id: i32,
             gamemode: u8,
-            dimension: i8,
+            dimension: i32,
             difficulty: u8,
             max_players: u8,
             level_type: LevelType,
@@ -55,56 +55,11 @@ pub mod clientbound {
         where
             Self: Sized,
         {
-            if version >= 86 {
-                0x23
-            } else if version >= 67 {
-                0x24
-            } else {
-                0x01
+            match version {
+                V1_9_1..=V1_12_2 => 0x23,
+                V1_13..=V1_13_2 => 0x25,
+                _ => panic!()
             }
-        }
-
-        fn data_bytes(&self) -> Result<Vec<u8>, PacketError> {
-            let mut ser = Serializer::new();
-
-            self.serialize(&mut ser)?;
-
-            Ok(ser.get_bytes())
-        }
-
-        fn self_id(&self, protocol_version: i32) -> i32 {
-            Self::id(protocol_version)
-        }
-    }
-
-    /// The [ServerDifficulty](https://wiki.vg/Protocol#Server_Difficulty) packet for version 47 and above
-    #[derive(Serialize, Deserialize)]
-    pub struct ServerDifficulty {
-        /// this is an unsigned byte enum
-        /// 0: peaceful, 1: easy, 2: normal, 3: hard
-        pub difficulty: u8,
-    }
-
-    impl ServerDifficulty {
-        /// create a new [ServerDifficulty] packet
-        pub fn new(difficulty: u8) -> Self {
-            Self { difficulty }
-        }
-    }
-
-    impl Packet for ServerDifficulty {
-        fn id(protocol_version: i32) -> i32
-        where
-            Self: Sized,
-        {
-            if protocol_version < 67 {
-                return 0x41;
-            } else if protocol_version < 318 {
-                return 0x0D;
-            } else if protocol_version < 332 {
-                return 0x0E;
-            }
-            0x0D
         }
 
         fn data_bytes(&self) -> Result<Vec<u8>, PacketError> {

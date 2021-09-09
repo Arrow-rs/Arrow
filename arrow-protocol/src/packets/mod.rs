@@ -16,6 +16,7 @@ use uuid::Uuid;
 
 use self::{
     common::*,
+    version::*,
     error::PacketError,
     types::{Difficulty, DimensionCodec, DimensionType, Gamemode, LevelType, Recipe},
     version_specific::types::v1_8::Dimension,
@@ -185,9 +186,9 @@ impl PacketKind {
                 is_debug,
                 is_flat,
             } => {
-                if protocol_version >= 755 {
+                if protocol_version >= V1_17 {
                     Ok(Box::new(
-                        version_specific::play::v755::clientbound::JoinGame::new(
+                        version_specific::play::v1_17::clientbound::JoinGame::new(
                             entity_id,
                             is_hardcore,
                             gamemode as u8,
@@ -205,9 +206,9 @@ impl PacketKind {
                             is_flat,
                         ),
                     ))
-                } else if protocol_version == 754 {
+                } else if protocol_version == V1_16_4 {
                     Ok(Box::new(
-                        version_specific::play::v754::clientbound::JoinGame::new(
+                        version_specific::play::v1_16_4::clientbound::JoinGame::new(
                             entity_id,
                             is_hardcore,
                             gamemode as u8,
@@ -225,7 +226,7 @@ impl PacketKind {
                             is_flat,
                         ),
                     ))
-                } else if protocol_version >= 522 {
+                } else if protocol_version >= V1_15 {
                     Ok(Box::new(
                         version_specific::play::v552::clientbound::JoinGame::new(
                             entity_id,
@@ -239,7 +240,7 @@ impl PacketKind {
                             enable_respawn_screen,
                         ),
                     ))
-                } else if protocol_version >= 468 {
+                } else if protocol_version >= V1_14 {
                     Ok(Box::new(
                         version_specific::play::v468::clientbound::JoinGame::new(
                             entity_id,
@@ -251,20 +252,9 @@ impl PacketKind {
                             reduced_debug_info,
                         ),
                     ))
-                } else if protocol_version >= 464 {
+                } else if protocol_version >= V1_9_1 {
                     Ok(Box::new(
-                        version_specific::play::v464::clientbound::JoinGame::new(
-                            entity_id,
-                            gamemode as u8 | ((is_hardcore as u8) << 3),
-                            dimension_47 as i32,
-                            max_players as u8,
-                            level_type,
-                            reduced_debug_info,
-                        ),
-                    ))
-                } else if protocol_version >= 108 {
-                    Ok(Box::new(
-                        version_specific::play::v108::clientbound::JoinGame::new(
+                        version_specific::play::v1_9_1::clientbound::JoinGame::new(
                             entity_id,
                             gamemode as u8 | ((is_hardcore as u8) << 3),
                             dimension_47 as i32,
@@ -276,7 +266,7 @@ impl PacketKind {
                     ))
                 } else {
                     Ok(Box::new(
-                        version_specific::play::v47::clientbound::JoinGame::new(
+                        version_specific::play::v1_8::clientbound::JoinGame::new(
                             entity_id,
                             gamemode as u8 | ((is_hardcore as u8) << 3),
                             dimension_47 as i8,
@@ -289,22 +279,17 @@ impl PacketKind {
                 }
             }
             DeclareRecipes(recipes) => match protocol_version {
-                348..=350 => Ok(Box::new(
-                    version_specific::play::v348::clientbound::DeclareRecipes {
+                V1_13..=V1_13_1 => Ok(Box::new(
+                    version_specific::play::v1_13::clientbound::DeclareRecipes {
                         recipes: recipes.into(),
                     },
                 )),
-                351..=401 => Ok(Box::new(
-                    version_specific::play::v351::clientbound::DeclareRecipes {
-                        recipes: recipes.into(),
-                    },
-                )),
-                402..=452 => Ok(Box::new(
+                V1_13_2 => Ok(Box::new(
                     version_specific::play::v402::clientbound::DeclareRecipes {
                         recipes: recipes.into(),
                     },
                 )),
-                453..=756 => Ok(Box::new(
+                V1_14..=V1_17_1 => Ok(Box::new(
                     version_specific::play::v453::clientbound::DeclareRecipes {
                         recipes: recipes.into(),
                     },
@@ -315,7 +300,7 @@ impl PacketKind {
                 slot,
             ))),
             ServerDifficulty(difficulty, difficulty_locked) => {
-                if protocol_version >= 464 {
+                if protocol_version >= V1_14 {
                     Ok(Box::new(
                         version_specific::play::v464::clientbound::ServerDifficulty::new(
                             difficulty as u8,
@@ -324,7 +309,7 @@ impl PacketKind {
                     ))
                 } else {
                     Ok(Box::new(
-                        version_specific::play::v47::clientbound::ServerDifficulty::new(
+                        version_specific::play::v1_8::clientbound::ServerDifficulty::new(
                             difficulty as u8,
                         ),
                     ))

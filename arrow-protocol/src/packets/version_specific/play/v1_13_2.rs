@@ -1,9 +1,9 @@
-/// All clientbound `play` packets for protocol versions 351 and above.
+/// All clientbound `play` packets for protocol versions 402 and above.
 pub mod clientbound {
     use serde::{Deserialize, Serialize};
 
     use crate::{
-        packets::{types::LengthPrefixedVec, version_specific::types::v351::Recipe, Packet},
+        packets::{types::LengthPrefixedVec, version_specific::types::v1_13::Recipe, Packet},
         serde::ser::Serializer,
     };
 
@@ -21,9 +21,9 @@ pub mod clientbound {
             Self: Sized,
         {
             match protocol_version {
-                351 => 0x52,
-                352..=388 => 0x53,
-                389..=401 => 0x54,
+                402..=440 => 0x54,
+                441..=450 => 0x55,
+                451..=453 => 0x56,
                 _ => unreachable!(),
             }
         }
