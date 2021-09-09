@@ -58,7 +58,7 @@ pub mod clientbound {
             match version {
                 V1_9_1..=V1_12_2 => 0x23,
                 V1_13..=V1_13_2 => 0x25,
-                _ => panic!()
+                _ => panic!(),
             }
         }
 

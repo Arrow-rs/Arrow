@@ -16,14 +16,14 @@ pub mod clientbound {
     }
 
     impl<'a> Packet for DeclareRecipes<'a> {
-        fn id(protocol_version: i32) -> i32
+        fn id(_: i32) -> i32
         where
             Self: Sized,
         {
             0x54
         }
 
-        fn self_id(&self, protocol_version: i32) -> i32 {
+        fn self_id(&self, _: i32) -> i32 {
             0x54
         }
 

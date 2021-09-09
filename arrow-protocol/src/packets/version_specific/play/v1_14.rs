@@ -3,7 +3,9 @@ pub mod clientbound {
     use serde::{Deserialize, Serialize};
 
     use crate::{
-        packets::{types::LengthPrefixedVec, version_specific::types::v1_14::Recipe, version::*, Packet},
+        packets::{
+            types::LengthPrefixedVec, version::*, version_specific::types::v1_14::Recipe, Packet,
+        },
         serde::ser::Serializer,
     };
 

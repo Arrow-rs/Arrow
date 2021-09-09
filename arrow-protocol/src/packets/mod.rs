@@ -4,10 +4,10 @@ pub mod common;
 pub mod error;
 /// All common types used in packets
 pub mod types;
-/// All version specific packets and types.
-pub mod version_specific;
 /// All protocol version numbers for release versions.
 pub mod version;
+/// All version specific packets and types.
+pub mod version_specific;
 
 use std::fmt::Display;
 
@@ -16,9 +16,9 @@ use uuid::Uuid;
 
 use self::{
     common::*,
-    version::*,
     error::PacketError,
     types::{Difficulty, DimensionCodec, DimensionType, Gamemode, LevelType, Recipe},
+    version::*,
     version_specific::types::v1_8::Dimension,
 };
 use crate::serde::{de::Deserializer, varint::VarInt};
