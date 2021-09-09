@@ -91,7 +91,7 @@ pub mod clientbound {
     }
 
     impl<'a> Packet for JoinGame<'a> {
-        fn id(protocol_version: i32) -> i32
+        fn id(_: i32) -> i32
         where
             Self: Sized,
         {
@@ -106,8 +106,8 @@ pub mod clientbound {
             Ok(ser.get_bytes())
         }
 
-        fn self_id(&self, protocol_version: i32) -> i32 {
-            Self::id(protocol_version)
+        fn self_id(&self, _: i32) -> i32 {
+            0x26
         }
     }
 }

@@ -79,7 +79,7 @@ pub enum PacketKind {
         /// Valid dimensions are defined per dimension registry sent before this
         dimension: DimensionType,
         /// Dimension is defined here
-        dimension_47: Dimension,
+        dimension_1_8: Dimension,
         /// The difficulty of the server
         difficulty: Difficulty,
         /// Name of the world being spawned into
@@ -174,7 +174,7 @@ impl PacketKind {
                 world_names,
                 dimension_codec,
                 dimension,
-                dimension_47,
+                dimension_1_8,
                 difficulty,
                 world_name,
                 hashed_seed,
@@ -231,7 +231,7 @@ impl PacketKind {
                         version_specific::play::v552::clientbound::JoinGame::new(
                             entity_id,
                             gamemode as u8 | ((is_hardcore as u8) << 3),
-                            dimension_47 as i32,
+                            dimension_1_8 as i32,
                             hashed_seed,
                             max_players as u8,
                             level_type,
@@ -245,7 +245,7 @@ impl PacketKind {
                         version_specific::play::v468::clientbound::JoinGame::new(
                             entity_id,
                             gamemode as u8 | ((is_hardcore as u8) << 3),
-                            dimension_47 as i32,
+                            dimension_1_8 as i32,
                             max_players as u8,
                             level_type,
                             view_distance,
@@ -257,7 +257,7 @@ impl PacketKind {
                         version_specific::play::v1_9_1::clientbound::JoinGame::new(
                             entity_id,
                             gamemode as u8 | ((is_hardcore as u8) << 3),
-                            dimension_47 as i32,
+                            dimension_1_8 as i32,
                             difficulty as u8,
                             max_players as u8,
                             level_type,
@@ -269,7 +269,7 @@ impl PacketKind {
                         version_specific::play::v1_8::clientbound::JoinGame::new(
                             entity_id,
                             gamemode as u8 | ((is_hardcore as u8) << 3),
-                            dimension_47 as i8,
+                            dimension_1_8 as i8,
                             difficulty as u8,
                             max_players as u8,
                             level_type,
@@ -285,12 +285,12 @@ impl PacketKind {
                     },
                 )),
                 V1_13_2 => Ok(Box::new(
-                    version_specific::play::v402::clientbound::DeclareRecipes {
+                    version_specific::play::v1_13_2::clientbound::DeclareRecipes {
                         recipes: recipes.into(),
                     },
                 )),
                 V1_14..=V1_17_1 => Ok(Box::new(
-                    version_specific::play::v453::clientbound::DeclareRecipes {
+                    version_specific::play::v1_14::clientbound::DeclareRecipes {
                         recipes: recipes.into(),
                     },
                 )),

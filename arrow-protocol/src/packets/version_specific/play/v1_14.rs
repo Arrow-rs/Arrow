@@ -3,7 +3,7 @@ pub mod clientbound {
     use serde::{Deserialize, Serialize};
 
     use crate::{
-        packets::{types::LengthPrefixedVec, version_specific::types::v351::Recipe, Packet},
+        packets::{types::LengthPrefixedVec, version_specific::types::v1_14::Recipe, version::*, Packet},
         serde::ser::Serializer,
     };
 
@@ -21,12 +21,11 @@ pub mod clientbound {
             Self: Sized,
         {
             match protocol_version {
-                453..=460 => 0x56,
-                461..=470 => 0x55,
-                471..=549 => 0x5A,
-                550..=720 => 0x5B,
-                721..=754 => 0x5A,
-                _ => 0x65,
+                V1_14..=V1_14_4 => 0x5A,
+                V1_15..=V1_15_2 => 0x5B,
+                V1_16..=V1_16_4 => 0x5A,
+                V1_17..=V1_17_1 => 0x65,
+                _ => unreachable!(),
             }
         }
 

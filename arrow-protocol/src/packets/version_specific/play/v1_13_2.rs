@@ -20,16 +20,11 @@ pub mod clientbound {
         where
             Self: Sized,
         {
-            match protocol_version {
-                402..=440 => 0x54,
-                441..=450 => 0x55,
-                451..=453 => 0x56,
-                _ => unreachable!(),
-            }
+            0x54
         }
 
         fn self_id(&self, protocol_version: i32) -> i32 {
-            Self::id(protocol_version)
+            0x54
         }
 
         fn data_bytes(&self) -> Result<Vec<u8>, crate::packets::error::PacketError> {

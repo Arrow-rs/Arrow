@@ -319,7 +319,7 @@ impl Client {
             world_names: vec![String::from("world")],
             dimension_codec,
             dimension,
-            dimension_47: version_specific::types::v47::Dimension::Overworld,
+            dimension_1_8: version_specific::types::v1_8::Dimension::Overworld,
             difficulty: types::Difficulty::Peaceful,
             world_name: String::from("world"),
             max_players: SERVER.read().await.get_max_online_player_count(),
