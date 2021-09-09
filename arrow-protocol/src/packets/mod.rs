@@ -228,7 +228,7 @@ impl PacketKind {
                     ))
                 } else if protocol_version >= V1_15 {
                     Ok(Box::new(
-                        version_specific::play::v552::clientbound::JoinGame::new(
+                        version_specific::play::v1_15::clientbound::JoinGame::new(
                             entity_id,
                             gamemode as u8 | ((is_hardcore as u8) << 3),
                             dimension_1_8 as i32,
@@ -242,7 +242,7 @@ impl PacketKind {
                     ))
                 } else if protocol_version >= V1_14 {
                     Ok(Box::new(
-                        version_specific::play::v468::clientbound::JoinGame::new(
+                        version_specific::play::v1_14::clientbound::JoinGame::new(
                             entity_id,
                             gamemode as u8 | ((is_hardcore as u8) << 3),
                             dimension_1_8 as i32,
@@ -302,7 +302,7 @@ impl PacketKind {
             ServerDifficulty(difficulty, difficulty_locked) => {
                 if protocol_version >= V1_14 {
                     Ok(Box::new(
-                        version_specific::play::v464::clientbound::ServerDifficulty::new(
+                        version_specific::play::v1_14::clientbound::ServerDifficulty::new(
                             difficulty as u8,
                             difficulty_locked,
                         ),
@@ -342,7 +342,7 @@ impl PacketKind {
                             next_state: packet.next_state.0,
                         })
                     }
-                    i => return Err(PacketError::InvalidPacketId(i, state)),
+                    i => Err(PacketError::InvalidPacketId(i, state)),
                 },
                 State::Login => match id {
                     i if i == login::serverbound::LoginStart::id(protocol_version) => {
@@ -350,11 +350,9 @@ impl PacketKind {
 
                         Ok(PacketKind::LoginStart(packet.name))
                     }
-                    i => return Err(PacketError::InvalidPacketId(i, state)),
+                    i => Err(PacketError::InvalidPacketId(i, state)),
                 },
-                State::Play => match id {
-                    _ => unimplemented!(),
-                },
+                State::Play => todo!(), 
                 State::Status => match id {
                     i if i == status::serverbound::Request::id(protocol_version) => {
                         Ok(PacketKind::StatusRequest)
@@ -364,7 +362,7 @@ impl PacketKind {
 
                         Ok(PacketKind::StatusPing(packet.payload))
                     }
-                    i => return Err(PacketError::InvalidPacketId(i, state)),
+                    i => Err(PacketError::InvalidPacketId(i, state)),
                 },
             }
         } else {

@@ -12,9 +12,5 @@ pub mod v1_17;
 pub mod v1_8;
 /// All `play` packets for game version 1.9.1 and above.
 pub mod v1_9_1;
-/// All `play` packets for protocol versions 464 and above.
-pub mod v464;
-/// All `play` packets for protocol version 468 and above.
-pub mod v468;
-/// All `play` packets for protocol version 552 and above.
-pub mod v552;
+/// All `play` packets for game version 1.15 and above.
+pub mod v1_15;

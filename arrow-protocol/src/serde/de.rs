@@ -24,7 +24,7 @@ impl Deserializer {
     }
 
     /// Checks if there are bytes left.
-    pub fn has_next(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.len() > 0
     }
 
@@ -63,8 +63,8 @@ impl<'a, 'de: 'a> serde::Deserializer<'de> for &'a mut Deserializer {
     {
         let mut buf = [0; 2];
 
-        for i in 0..2 {
-            buf[i] = self.get_u8()?;
+        for b in &mut buf {
+            *b = self.get_u8()?;
         }
 
         visitor.visit_i16(i16::from_be_bytes(buf))
@@ -76,8 +76,8 @@ impl<'a, 'de: 'a> serde::Deserializer<'de> for &'a mut Deserializer {
     {
         let mut buf = [0; 4];
 
-        for i in 0..buf.len() {
-            buf[i] = self.get_u8()?;
+        for b in &mut buf {
+            *b = self.get_u8()?;
         }
 
         visitor.visit_i32(i32::from_be_bytes(buf))
@@ -89,8 +89,8 @@ impl<'a, 'de: 'a> serde::Deserializer<'de> for &'a mut Deserializer {
     {
         let mut buf = [0; 8];
 
-        for i in 0..buf.len() {
-            buf[i] = self.get_u8()?;
+        for b in &mut buf {
+            *b = self.get_u8()?;
         }
 
         visitor.visit_i64(i64::from_be_bytes(buf))
@@ -109,8 +109,8 @@ impl<'a, 'de: 'a> serde::Deserializer<'de> for &'a mut Deserializer {
     {
         let mut buf = [0; 2];
 
-        for i in 0..2 {
-            buf[i] = self.get_u8()?;
+        for b in &mut buf {
+            *b = self.get_u8()?;
         }
 
         visitor.visit_u16(u16::from_be_bytes(buf))
@@ -122,8 +122,8 @@ impl<'a, 'de: 'a> serde::Deserializer<'de> for &'a mut Deserializer {
     {
         let mut buf = [0; 4];
 
-        for i in 0..buf.len() {
-            buf[i] = self.get_u8()?;
+        for b in &mut buf {
+            *b = self.get_u8()?;
         }
 
         visitor.visit_u32(u32::from_be_bytes(buf))
@@ -135,8 +135,8 @@ impl<'a, 'de: 'a> serde::Deserializer<'de> for &'a mut Deserializer {
     {
         let mut buf = [0; 8];
 
-        for i in 0..buf.len() {
-            buf[i] = self.get_u8()?;
+        for b in &mut buf {
+            *b = self.get_u8()?;
         }
 
         visitor.visit_u64(u64::from_be_bytes(buf))
@@ -148,8 +148,8 @@ impl<'a, 'de: 'a> serde::Deserializer<'de> for &'a mut Deserializer {
     {
         let mut buf = [0; 4];
 
-        for i in 0..buf.len() {
-            buf[i] = self.get_u8()?;
+        for b in &mut buf {
+            *b = self.get_u8()?;
         }
 
         visitor.visit_f32(f32::from_be_bytes(buf))
@@ -161,8 +161,8 @@ impl<'a, 'de: 'a> serde::Deserializer<'de> for &'a mut Deserializer {
     {
         let mut buf = [0; 8];
 
-        for i in 0..buf.len() {
-            buf[i] = self.get_u8()?;
+        for b in &mut buf {
+            *b = self.get_u8()?;
         }
 
         visitor.visit_f64(f64::from_be_bytes(buf))
@@ -382,7 +382,7 @@ impl<'de, 's> serde::de::SeqAccess<'s> for SeqAccess<'de> {
     where
         T: serde::de::DeserializeSeed<'s>,
     {
-        if !self.de.has_next() {
+        if !self.de.is_empty() {
             return Ok(None);
         }
 

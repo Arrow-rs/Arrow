@@ -18,7 +18,7 @@
 //! assert_eq!(packet, new_packet);
 //! ```
 
-#[deny(missing_docs)]
+#![allow(clippy::too_many_arguments)]
 
 /// The packets of the minecraft protocol.
 pub mod packets;

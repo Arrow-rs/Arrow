@@ -142,7 +142,7 @@ impl Client {
             description: status::DescriptionData {
                 text: String::from("Hello world"),
             },
-            favicon: String::from(format!("data:image/png;base64,{}", test_img)),
+            favicon: format!("data:image/png;base64,{}", test_img),
         };
 
         send_packet!(self PacketKind::StatusResponse(response_data));
@@ -173,7 +173,7 @@ impl Client {
             error!("Player already connected.");
         } else {
             info!("Player {} with uuid {} logged in successfully.", name, uuid);
-            send_packet!(self PacketKind::LoginSuccess(uuid.clone(), name.clone()));
+            send_packet!(self PacketKind::LoginSuccess(uuid, name.clone()));
             SERVER
                 .write()
                 .await
