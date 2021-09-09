@@ -28,7 +28,7 @@ impl Server {
                 .write()
                 .await
                 .client_mut()
-                .set_slot(0 as i8)
+                .set_slot(0)
                 .await;
         });
         self.players.push(player);
@@ -63,7 +63,7 @@ impl Server {
             }
         }
 
-        return false;
+        false
     }
 
     pub async fn recv(&self) {

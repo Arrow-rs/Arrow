@@ -44,7 +44,7 @@ impl<'de> Visitor<'de> for VarIntVisitor {
         loop {
             let read: u8 = seq
                 .next_element()?
-                .ok_or(A::Error::custom("Unexpected eof."))?;
+                .ok_or_else(|| A::Error::custom("Unexpected eof."))?;
 
             let value = (read & 0b01111111) as i32;
             result |= value << (7 * i);
@@ -104,7 +104,7 @@ impl<'de> Visitor<'de> for VarLongVisitor {
         loop {
             let read: u8 = seq
                 .next_element()?
-                .ok_or(A::Error::custom("Unexpected eof."))?;
+                .ok_or_else(|| A::Error::custom("Unexpected eof."))?;
 
             let value = (read & 0b01111111) as i64;
             result |= value << (7 * i);

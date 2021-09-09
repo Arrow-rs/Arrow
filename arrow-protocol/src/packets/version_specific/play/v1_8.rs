@@ -1,10 +1,10 @@
-/// All clientbound `play` packets for protocol versions 468 and above.
+/// All clientbound `play` packets for game version 1.8 and above.
 pub mod clientbound {
     use serde::{Deserialize, Serialize};
 
     use crate::packets::types::LevelType;
     use crate::{
-        packets::{error::PacketError, Packet},
+        packets::{error::PacketError, version::*, Packet},
         serde::ser::Serializer,
     };
 
@@ -28,7 +28,7 @@ pub mod clientbound {
     }
 
     impl JoinGame {
-        /// create a new [JoinGame] packet
+        /// Create a new [JoinGame] packet.
         pub fn new(
             entity_id: i32,
             gamemode: u8,
@@ -77,7 +77,7 @@ pub mod clientbound {
         }
     }
 
-    /// The [ServerDifficulty](https://wiki.vg/Protocol#Server_Difficulty) packet for version 47 and above
+    /// The [ServerDifficulty](https://wiki.vg/Protocol#Server_Difficulty) packet for version 47 and above.
     #[derive(Serialize, Deserialize)]
     pub struct ServerDifficulty {
         /// this is an unsigned byte enum
@@ -97,14 +97,11 @@ pub mod clientbound {
         where
             Self: Sized,
         {
-            if protocol_version < 67 {
-                return 0x41;
-            } else if protocol_version < 318 {
-                return 0x0D;
-            } else if protocol_version < 332 {
-                return 0x0E;
+            match protocol_version {
+                V1_8 => 0x41,
+                V1_9..=V1_13_2 => 0x0d,
+                _ => panic!(),
             }
-            0x0D
         }
 
         fn data_bytes(&self) -> Result<Vec<u8>, PacketError> {

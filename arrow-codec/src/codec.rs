@@ -35,7 +35,7 @@ impl McCodec {
         let mut read: u8;
 
         while {
-            if src.len() == 0 {
+            if src.is_empty() {
                 return Ok(None);
             }
             read = src.get_u8();
@@ -91,7 +91,7 @@ impl Decoder for McCodec {
         ) {
             Ok(p) => p,
             Err(PacketError::SerdeError(s)) => {
-                if s == "Unexpected eof".to_string() {
+                if s == *"Unexpected eof" {
                     return Ok(None);
                 }
                 return Err(PacketError::SerdeError(s).into());

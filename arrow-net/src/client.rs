@@ -142,7 +142,7 @@ impl Client {
             description: status::DescriptionData {
                 text: String::from("Hello world"),
             },
-            favicon: String::from(format!("data:image/png;base64,{}", test_img)),
+            favicon: format!("data:image/png;base64,{}", test_img),
         };
 
         send_packet!(self PacketKind::StatusResponse(response_data));
@@ -173,7 +173,7 @@ impl Client {
             error!("Player already connected.");
         } else {
             info!("Player {} with uuid {} logged in successfully.", name, uuid);
-            send_packet!(self PacketKind::LoginSuccess(uuid.clone(), name.clone()));
+            send_packet!(self PacketKind::LoginSuccess(uuid, name.clone()));
             SERVER
                 .write()
                 .await
@@ -319,7 +319,7 @@ impl Client {
             world_names: vec![String::from("world")],
             dimension_codec,
             dimension,
-            dimension_47: version_specific::types::v47::Dimension::Overworld,
+            dimension_1_8: version_specific::types::v1_8::Dimension::Overworld,
             difficulty: types::Difficulty::Peaceful,
             world_name: String::from("world"),
             max_players: SERVER.read().await.get_max_online_player_count(),

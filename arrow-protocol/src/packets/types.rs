@@ -287,9 +287,8 @@ struct NbtVisitor<'a, T>(PhantomData<&'a T>);
 pub struct LengthPrefixedVec<'a, T>(PhantomData<&'a T>, pub Vec<T>);
 struct LengthPrefixedVecVisitor<'a, T>(PhantomData<&'a T>);
 
-impl LevelType {
-    /// used to convert enum value to String
-    pub fn to_string(&self) -> String {
+impl ToString for LevelType {
+    fn to_string(&self) -> String {
         match self {
             Self::Default => String::from("default"),
             Self::Flat => String::from("flat"),
@@ -423,7 +422,7 @@ impl<'de, A: SeqAccess<'de>> Read for SeqReader<'de, A> {
                 .1
                 .next_element()
                 .map_err(|e| Error::new(ErrorKind::Other, format!("{}", e)))?
-                .ok_or(Error::new(ErrorKind::UnexpectedEof, ""))?;
+                .ok_or_else(|| Error::new(ErrorKind::UnexpectedEof, ""))?;
         }
 
         Ok(buf.len())

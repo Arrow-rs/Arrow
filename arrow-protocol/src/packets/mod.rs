@@ -4,6 +4,8 @@ pub mod common;
 pub mod error;
 /// All common types used in packets
 pub mod types;
+/// All protocol version numbers for release versions.
+pub mod version;
 /// All version specific packets and types.
 pub mod version_specific;
 
@@ -16,7 +18,8 @@ use self::{
     common::*,
     error::PacketError,
     types::{Difficulty, DimensionCodec, DimensionType, Gamemode, LevelType, Recipe},
-    version_specific::types::v47::Dimension,
+    version::*,
+    version_specific::types::v1_8::Dimension,
 };
 use crate::serde::{de::Deserializer, varint::VarInt};
 
@@ -76,7 +79,7 @@ pub enum PacketKind {
         /// Valid dimensions are defined per dimension registry sent before this
         dimension: DimensionType,
         /// Dimension is defined here
-        dimension_47: Dimension,
+        dimension_1_8: Dimension,
         /// The difficulty of the server
         difficulty: Difficulty,
         /// Name of the world being spawned into
@@ -143,11 +146,11 @@ impl PacketKind {
             LoginSuccess(uuid, name) => {
                 if protocol_version >= 707 {
                     Ok(Box::new(
-                        version_specific::login::v707::clientbound::LoginSuccess::new(uuid, name),
+                        version_specific::login::v1_16::clientbound::LoginSuccess::new(uuid, name),
                     ))
                 } else {
                     Ok(Box::new(
-                        version_specific::login::v47::clientbound::LoginSuccess::new(
+                        version_specific::login::v1_8::clientbound::LoginSuccess::new(
                             uuid.to_hyphenated().to_string(),
                             name,
                         ),
@@ -171,7 +174,7 @@ impl PacketKind {
                 world_names,
                 dimension_codec,
                 dimension,
-                dimension_47,
+                dimension_1_8,
                 difficulty,
                 world_name,
                 hashed_seed,
@@ -183,9 +186,9 @@ impl PacketKind {
                 is_debug,
                 is_flat,
             } => {
-                if protocol_version >= 755 {
+                if protocol_version >= V1_17 {
                     Ok(Box::new(
-                        version_specific::play::v755::clientbound::JoinGame::new(
+                        version_specific::play::v1_17::clientbound::JoinGame::new(
                             entity_id,
                             is_hardcore,
                             gamemode as u8,
@@ -203,9 +206,9 @@ impl PacketKind {
                             is_flat,
                         ),
                     ))
-                } else if protocol_version == 754 {
+                } else if protocol_version == V1_16_4 {
                     Ok(Box::new(
-                        version_specific::play::v754::clientbound::JoinGame::new(
+                        version_specific::play::v1_16_4::clientbound::JoinGame::new(
                             entity_id,
                             is_hardcore,
                             gamemode as u8,
@@ -223,12 +226,12 @@ impl PacketKind {
                             is_flat,
                         ),
                     ))
-                } else if protocol_version >= 522 {
+                } else if protocol_version >= V1_15 {
                     Ok(Box::new(
-                        version_specific::play::v552::clientbound::JoinGame::new(
+                        version_specific::play::v1_15::clientbound::JoinGame::new(
                             entity_id,
                             gamemode as u8 | ((is_hardcore as u8) << 3),
-                            dimension_47 as i32,
+                            dimension_1_8 as i32,
                             hashed_seed,
                             max_players as u8,
                             level_type,
@@ -237,35 +240,24 @@ impl PacketKind {
                             enable_respawn_screen,
                         ),
                     ))
-                } else if protocol_version >= 468 {
+                } else if protocol_version >= V1_14 {
                     Ok(Box::new(
-                        version_specific::play::v468::clientbound::JoinGame::new(
+                        version_specific::play::v1_14::clientbound::JoinGame::new(
                             entity_id,
                             gamemode as u8 | ((is_hardcore as u8) << 3),
-                            dimension_47 as i32,
+                            dimension_1_8 as i32,
                             max_players as u8,
                             level_type,
                             view_distance,
                             reduced_debug_info,
                         ),
                     ))
-                } else if protocol_version >= 464 {
+                } else if protocol_version >= V1_9_1 {
                     Ok(Box::new(
-                        version_specific::play::v464::clientbound::JoinGame::new(
+                        version_specific::play::v1_9_1::clientbound::JoinGame::new(
                             entity_id,
                             gamemode as u8 | ((is_hardcore as u8) << 3),
-                            dimension_47 as i32,
-                            max_players as u8,
-                            level_type,
-                            reduced_debug_info,
-                        ),
-                    ))
-                } else if protocol_version >= 108 {
-                    Ok(Box::new(
-                        version_specific::play::v108::clientbound::JoinGame::new(
-                            entity_id,
-                            gamemode as u8 | ((is_hardcore as u8) << 3),
-                            dimension_47 as i32,
+                            dimension_1_8 as i32,
                             difficulty as u8,
                             max_players as u8,
                             level_type,
@@ -274,10 +266,10 @@ impl PacketKind {
                     ))
                 } else {
                     Ok(Box::new(
-                        version_specific::play::v47::clientbound::JoinGame::new(
+                        version_specific::play::v1_8::clientbound::JoinGame::new(
                             entity_id,
                             gamemode as u8 | ((is_hardcore as u8) << 3),
-                            dimension_47 as i8,
+                            dimension_1_8 as i8,
                             difficulty as u8,
                             max_players as u8,
                             level_type,
@@ -287,23 +279,18 @@ impl PacketKind {
                 }
             }
             DeclareRecipes(recipes) => match protocol_version {
-                348..=350 => Ok(Box::new(
-                    version_specific::play::v348::clientbound::DeclareRecipes {
+                V1_13..=V1_13_1 => Ok(Box::new(
+                    version_specific::play::v1_13::clientbound::DeclareRecipes {
                         recipes: recipes.into(),
                     },
                 )),
-                351..=401 => Ok(Box::new(
-                    version_specific::play::v351::clientbound::DeclareRecipes {
+                V1_13_2 => Ok(Box::new(
+                    version_specific::play::v1_13_2::clientbound::DeclareRecipes {
                         recipes: recipes.into(),
                     },
                 )),
-                402..=452 => Ok(Box::new(
-                    version_specific::play::v402::clientbound::DeclareRecipes {
-                        recipes: recipes.into(),
-                    },
-                )),
-                453..=756 => Ok(Box::new(
-                    version_specific::play::v453::clientbound::DeclareRecipes {
+                V1_14..=V1_17_1 => Ok(Box::new(
+                    version_specific::play::v1_14::clientbound::DeclareRecipes {
                         recipes: recipes.into(),
                     },
                 )),
@@ -313,16 +300,16 @@ impl PacketKind {
                 slot,
             ))),
             ServerDifficulty(difficulty, difficulty_locked) => {
-                if protocol_version >= 464 {
+                if protocol_version >= V1_14 {
                     Ok(Box::new(
-                        version_specific::play::v464::clientbound::ServerDifficulty::new(
+                        version_specific::play::v1_14::clientbound::ServerDifficulty::new(
                             difficulty as u8,
                             difficulty_locked,
                         ),
                     ))
                 } else {
                     Ok(Box::new(
-                        version_specific::play::v47::clientbound::ServerDifficulty::new(
+                        version_specific::play::v1_8::clientbound::ServerDifficulty::new(
                             difficulty as u8,
                         ),
                     ))
@@ -355,7 +342,7 @@ impl PacketKind {
                             next_state: packet.next_state.0,
                         })
                     }
-                    i => return Err(PacketError::InvalidPacketId(i, state)),
+                    i => Err(PacketError::InvalidPacketId(i, state)),
                 },
                 State::Login => match id {
                     i if i == login::serverbound::LoginStart::id(protocol_version) => {
@@ -363,11 +350,9 @@ impl PacketKind {
 
                         Ok(PacketKind::LoginStart(packet.name))
                     }
-                    i => return Err(PacketError::InvalidPacketId(i, state)),
+                    i => Err(PacketError::InvalidPacketId(i, state)),
                 },
-                State::Play => match id {
-                    _ => unimplemented!(),
-                },
+                State::Play => todo!(), 
                 State::Status => match id {
                     i if i == status::serverbound::Request::id(protocol_version) => {
                         Ok(PacketKind::StatusRequest)
@@ -377,7 +362,7 @@ impl PacketKind {
 
                         Ok(PacketKind::StatusPing(packet.payload))
                     }
-                    i => return Err(PacketError::InvalidPacketId(i, state)),
+                    i => Err(PacketError::InvalidPacketId(i, state)),
                 },
             }
         } else {

@@ -1,14 +1,12 @@
-/// Types for version 348 and above.
-pub mod v348;
-/// Types for version 351 and above.
-pub mod v351;
-/// Types for version 402 and above.
-pub mod v402;
-/// Types for version 453 and above.
-pub mod v453;
-/// Types for versiom 47 and above.
-pub mod v47;
-/// Types for version 754 and above
-pub mod v754;
-/// Types for version 755 and above
-pub mod v755;
+/// Types for game version 1.13 and above.
+pub mod v1_13;
+/// Types for game version 1.13.2 and above.
+pub mod v1_13_2;
+/// Types for game version 1.14 and above.
+pub mod v1_14;
+/// Types for game version 1.16.4 and above
+pub mod v1_16_4;
+/// Types for game version 1.17 and above
+pub mod v1_17;
+/// Types for game version 1.8 and above.
+pub mod v1_8;

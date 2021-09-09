@@ -1,14 +1,45 @@
-/// All clientbound `play` packets for protocol versions 468 and above.
+/// All clientbound `play` packets for protocol versions 453 and above.
 pub mod clientbound {
     use serde::{Deserialize, Serialize};
 
-    use crate::packets::types::LevelType;
-    use crate::{
-        packets::{error::PacketError, Packet},
-        serde::ser::Serializer,
-    };
+    use crate::{packets::{Packet, error::PacketError, types::{LengthPrefixedVec, LevelType}, version::*, version_specific::types::v1_14::Recipe}, serde::{ser::Serializer, varint::VarInt}};
 
-    /// The [JoinGame](https://wiki.vg/index.php?title=Pre-release_protocol&oldid=14639#Join_Game) packet for version 464 or higher.
+    /// The DeclareRecipes packet.
+    #[derive(Serialize, Deserialize)]
+    pub struct DeclareRecipes<'a> {
+        /// All crafting recipes.
+        #[serde(borrow)]
+        pub recipes: LengthPrefixedVec<'a, Recipe<'a>>,
+    }
+
+    impl<'a> Packet for DeclareRecipes<'a> {
+        fn id(protocol_version: i32) -> i32
+        where
+            Self: Sized,
+        {
+            match protocol_version {
+                V1_14..=V1_14_4 => 0x5A,
+                V1_15..=V1_15_2 => 0x5B,
+                V1_16..=V1_16_4 => 0x5A,
+                V1_17..=V1_17_1 => 0x65,
+                _ => unreachable!(),
+            }
+        }
+
+        fn self_id(&self, protocol_version: i32) -> i32 {
+            Self::id(protocol_version)
+        }
+
+        fn data_bytes(&self) -> Result<Vec<u8>, PacketError> {
+            let mut ser = Serializer::new();
+
+            self.serialize(&mut ser)?;
+
+            Ok(ser.get_bytes())
+        }
+    }
+
+    /// The [JoinGame](https://wiki.vg/index.php?title=Pre-release_protocol&oldid=14639#Join_Game) packet for version 468 or higher.
     #[derive(Serialize, Deserialize)]
     pub struct JoinGame {
         /// This is the player's Entity ID (EID).
@@ -21,6 +52,8 @@ pub mod clientbound {
         pub max_players: u8,
         /// default, flat, largeBiomes, amplified, customized, buffet, default_1_1
         pub level_type: String,
+        /// Render distance (2-32).
+        pub view_distance: VarInt,
         /// If true, a Notchian client shows reduced information on the debug screen. For servers in development, this should almost always be false.
         pub reduced_debug_info: bool,
     }
@@ -33,6 +66,7 @@ pub mod clientbound {
             dimension: i32,
             max_players: u8,
             level_type: LevelType,
+            view_distance: VarInt,
             reduced_debug_info: bool,
         ) -> Self {
             Self {
@@ -41,17 +75,22 @@ pub mod clientbound {
                 dimension,
                 max_players,
                 level_type: level_type.to_string(),
+                view_distance,
                 reduced_debug_info,
             }
         }
     }
 
     impl Packet for JoinGame {
-        fn id(_: i32) -> i32
+        fn id(version: i32) -> i32
         where
             Self: Sized,
         {
-            0x25
+            if version >= V1_15 {
+                0x26
+            } else {
+                0x25
+            }
         }
 
         fn data_bytes(&self) -> Result<Vec<u8>, PacketError> {
@@ -92,14 +131,11 @@ pub mod clientbound {
         where
             Self: Sized,
         {
-            if protocol_version < 67 {
-                return 0x41;
-            } else if protocol_version < 318 {
-                return 0x0D;
-            } else if protocol_version < 332 || protocol_version > 754 {
-                return 0x0E;
+            if protocol_version <= V1_14_4 {
+                0x0d
+            } else {
+                0x0e
             }
-            0x0D
         }
 
         fn data_bytes(&self) -> Result<Vec<u8>, PacketError> {

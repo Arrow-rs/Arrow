@@ -27,15 +27,11 @@ pub mod clientbound {
     }
 
     impl Packet for LoginSuccess {
-        fn id(version: i32) -> i32
+        fn id(_: i32) -> i32
         where
             Self: Sized,
         {
-            if (385..391).contains(&version) {
-                0x3
-            } else {
-                0x2
-            }
+            0x2
         }
 
         fn self_id(&self, protocol_version: i32) -> i32 {

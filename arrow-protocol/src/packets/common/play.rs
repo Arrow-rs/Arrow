@@ -3,7 +3,7 @@ pub mod clientbound {
     use serde::{Deserialize, Serialize};
 
     use crate::{
-        packets::{error::PacketError, Packet},
+        packets::{error::PacketError, version::*, Packet},
         serde::ser::Serializer,
     };
 
@@ -23,26 +23,15 @@ pub mod clientbound {
 
     impl Packet for HeldItemChange {
         fn id(version: i32) -> i32 {
-            if version >= 755 {
-                0x48
-            } else if version >= 721 || (471..550).contains(&version) {
-                0x3F
-            } else if version >= 550 {
-                0x40
-            } else if version >= 461 || (389..451).contains(&version) {
-                0x3D
-            } else if version >= 451 {
-                0x3E
-            } else if version >= 352 {
-                0x3C
-            } else if version >= 345 {
-                0x3B
-            } else if version >= 336 {
-                0x3A
-            } else if version >= 318 {
-                0x39
-            } else {
-                0x37
+            match version {
+                V1_8..=V1_11_2 => 0x37,
+                V1_12_1..=V1_12_2 => 0x3a,
+                V1_13..=V1_13_2 => 0x3d,
+                V1_14..=V1_14_4 => 0x3f,
+                V1_15..=V1_15_2 => 0x40,
+                V1_16..=V1_16_5 => 0x3f,
+                V1_17..=V1_17_1 => 0x48,
+                _ => panic!(),
             }
         }
 

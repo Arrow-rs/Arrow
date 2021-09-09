@@ -1,9 +1,9 @@
-/// All clientbound `play` packets for protocol versions 453 and above.
+/// All clientbound `play` packets for protocol versions 351 and above.
 pub mod clientbound {
     use serde::{Deserialize, Serialize};
 
     use crate::{
-        packets::{types::LengthPrefixedVec, version_specific::types::v351::Recipe, Packet},
+        packets::{types::LengthPrefixedVec, version_specific::types::v1_13::Recipe, Packet},
         serde::ser::Serializer,
     };
 
@@ -16,22 +16,15 @@ pub mod clientbound {
     }
 
     impl<'a> Packet for DeclareRecipes<'a> {
-        fn id(protocol_version: i32) -> i32
+        fn id(_: i32) -> i32
         where
             Self: Sized,
         {
-            match protocol_version {
-                453..=460 => 0x56,
-                461..=470 => 0x55,
-                471..=549 => 0x5A,
-                550..=720 => 0x5B,
-                721..=754 => 0x5A,
-                _ => 0x65,
-            }
+            0x54
         }
 
-        fn self_id(&self, protocol_version: i32) -> i32 {
-            Self::id(protocol_version)
+        fn self_id(&self, _: i32) -> i32 {
+            0x54
         }
 
         fn data_bytes(&self) -> Result<Vec<u8>, crate::packets::error::PacketError> {

@@ -9,7 +9,7 @@ pub mod clientbound {
     use crate::{
         packets::{
             types::{LengthPrefixedVec, Nbt},
-            version_specific::types::v755::{DimensionCodec, DimensionType},
+            version_specific::types::v1_16_4::{DimensionCodec, DimensionType},
         },
         serde::varint::VarInt,
     };
@@ -91,11 +91,11 @@ pub mod clientbound {
     }
 
     impl<'a> Packet for JoinGame<'a> {
-        fn id(protocol_version: i32) -> i32
+        fn id(_: i32) -> i32
         where
             Self: Sized,
         {
-            0x26
+            0x24
         }
 
         fn data_bytes(&self) -> Result<Vec<u8>, PacketError> {
@@ -106,8 +106,8 @@ pub mod clientbound {
             Ok(ser.get_bytes())
         }
 
-        fn self_id(&self, protocol_version: i32) -> i32 {
-            Self::id(protocol_version)
+        fn self_id(&self, _: i32) -> i32 {
+            0x24
         }
     }
 }

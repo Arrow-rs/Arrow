@@ -25,15 +25,11 @@ pub mod serverbound {
     }
 
     impl Packet for LoginStart {
-        fn id(version: i32) -> i32
+        fn id(_: i32) -> i32
         where
             Self: Sized,
         {
-            if (385..391).contains(&version) {
-                0x01
-            } else {
-                0x00
-            }
+            0x00
         }
 
         fn data_bytes(&self) -> Result<Vec<u8>, PacketError> {

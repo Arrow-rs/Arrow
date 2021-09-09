@@ -39,16 +39,12 @@ pub async fn start_server(host: &str, port: u16) -> Result<()> {
 
             socket.peek(&mut buf).await.unwrap();
 
-            match buf[0] {
-                0xfe => {
+            if buf[0] == 0xfe {
                     error!("Implement legacy server ping.");
-                    return;
-                }
-                _ => {}
+            } else {
+                let client = client::Client::new(socket);
+                client.connect().await;
             }
-
-            let client = client::Client::new(socket);
-            client.connect().await;
         });
     }
 }
