@@ -9,6 +9,27 @@ pub struct VarInt(pub i32);
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct VarLong(pub i64);
 
+impl VarInt {
+    pub fn len(&self) -> usize {
+        const MIN_1B: i32 = 0;
+        const MAX_1B: i32 = 2i32.pow(7) - 1;
+        const MIN_2B: i32 = 2i32.pow(7);
+        const MAX_2B: i32 = 2i32.pow(2 * 7) - 1;
+        const MIN_3B: i32 = 2i32.pow(2 * 7);
+        const MAX_3B: i32 = 2i32.pow(3 * 7) - 1;
+        const MIN_4B: i32 = 2i32.pow(3 * 7);
+        const MAX_4B: i32 = 2i32.pow(4 * 7) - 1;
+
+        match self.0 {
+            MIN_1B..=MAX_1B => 1,
+            MIN_2B..=MAX_2B => 2,
+            MIN_3B..=MAX_3B => 3,
+            MIN_4B..=MAX_4B => 4,
+            _ => 5,
+        }
+    }
+}
+
 impl Serialize for VarInt {
     fn serialize(&self, buf: &mut BytesMut) {
         let mut value = self.0 as u32;

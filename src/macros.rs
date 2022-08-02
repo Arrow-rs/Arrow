@@ -7,7 +7,7 @@ macro_rules! state {
         }
 
         impl $name {
-            pub fn serialize(&self) -> Vec<u8> {
+            pub fn serialize(&self) -> (i32, Vec<u8>) {
                 match self {
                     $(Self::$sbvariant(variant) => variant.serialize(),)*
                     $(Self::$cbvariant(variant) => variant.serialize(),)*
@@ -50,21 +50,8 @@ macro_rules! packet {
         pub struct $name;
 
         impl $name {
-            pub fn serialize(&self) -> Vec<u8> {
-                use $crate::types::Serialize;
-
-                let mut packet = bytes::BytesMut::new();
-
-                let mut buf = bytes::BytesMut::new();
-
-                $crate::types::varint::VarInt($id).serialize(&mut buf);
-
-                $crate::types::varint::VarInt(buf.len() as i32).serialize(&mut packet);
-
-                let mut packet = packet.to_vec();
-                packet.extend_from_slice(&buf);
-
-                packet
+            pub fn serialize(&self) -> (i32, Vec<u8>) {
+                ($id, vec![])
             }
 
             pub fn deserialize(_: &mut bytes::Bytes) -> $crate::error::Res<Self> {
@@ -80,23 +67,14 @@ macro_rules! packet {
         }
 
         impl $name {
-            pub fn serialize(&self) -> Vec<u8> {
+            pub fn serialize(&self) -> (i32, Vec<u8>) {
                 use $crate::types::Serialize;
 
-                let mut packet = bytes::BytesMut::new();
+                let mut data = bytes::BytesMut::new();
 
-                let mut buf = bytes::BytesMut::new();
+                $(self.$field.serialize(&mut data);)*
 
-                $crate::types::varint::VarInt($id).serialize(&mut buf);
-
-                $(self.$field.serialize(&mut buf);)*
-
-                $crate::types::varint::VarInt(buf.len() as i32).serialize(&mut packet);
-
-                let mut packet = packet.to_vec();
-                packet.extend_from_slice(&buf);
-
-                packet
+                ($id, data.to_vec())
             }
 
             pub fn deserialize(buf: &mut bytes::Bytes) -> $crate::error::Res<Self> {
