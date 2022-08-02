@@ -1,6 +1,8 @@
 pub mod position;
 pub mod varint;
 
+use std::fmt;
+
 use bytes::{Buf, BufMut, Bytes, BytesMut};
 use uuid::Uuid;
 
@@ -144,7 +146,7 @@ impl Serialize for i64 {
 impl Serialize for String {
     fn serialize(&self, buf: &mut BytesMut) {
         VarInt(self.len() as i32).serialize(buf);
-        buf.copy_from_slice(self.as_bytes());
+        buf.extend_from_slice(self.as_bytes());
     }
 
     fn deserialize(buf: &mut Bytes) -> Res<Self> {
@@ -154,7 +156,7 @@ impl Serialize for String {
             return Err(ProtocolError::UnexpectedEof);
         }
 
-        let bytes = buf.slice(0..len).to_vec();
+        let bytes = buf.split_to(len).to_vec();
 
         String::from_utf8(bytes).map_err(Into::into)
     }
@@ -202,12 +204,15 @@ impl<T: Serialize> Serialize for Vec<T> {
     }
 }
 
-pub enum Either<L, R> {
+#[derive(Debug, Clone)]
+pub enum Either<L: fmt::Debug + Clone, R: fmt::Debug + Clone> {
     Left(L),
     Right(R),
 }
 
-impl<L: Serialize, R: Serialize> Serialize for Either<L, R> {
+impl<L: Serialize + fmt::Debug + Clone, R: Serialize + fmt::Debug + Clone> Serialize
+    for Either<L, R>
+{
     fn serialize(&self, buf: &mut BytesMut) {
         match self {
             Either::Left(l) => {

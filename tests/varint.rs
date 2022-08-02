@@ -14,8 +14,7 @@ macro_rules! test {
                 varint.serialize(&mut buf);
 
                 assert_eq!(buf, bytes);
-                dbg!(varint.0);
-                assert_eq!(varint, $ty::deserialize(&mut Bytes::copy_from_slice(bytes)).unwrap());
+                assert_eq!(varint, $ty::deserialize(&mut Bytes::from(bytes)).unwrap());
                 buf.clear();
             }
         )*

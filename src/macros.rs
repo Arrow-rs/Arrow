@@ -29,9 +29,19 @@ macro_rules! state {
                         }
                     }
                 }
-
             }
         }
+
+        $(impl From<$sbpacket> for $name {
+            fn from(p: $sbpacket) -> Self {
+                Self::$sbvariant(p)
+            }
+        })*
+        $(impl From<$cbpacket> for $name {
+            fn from(p: $cbpacket) -> Self {
+                Self::$cbvariant(p)
+            }
+        })*
     }
 }
 
@@ -47,6 +57,7 @@ macro_rules! packets {
 #[macro_export]
 macro_rules! packet {
     ($name:ident($id:literal)) => {
+        #[derive(Debug, Clone)]
         pub struct $name;
 
         impl $name {
@@ -62,6 +73,7 @@ macro_rules! packet {
     };
 
     ($name:ident($id:literal) { $($field:ident: $ty:ty),+ }) => {
+        #[derive(Debug, Clone)]
         pub struct $name {
             $(pub $field: $ty),*
         }
@@ -80,7 +92,7 @@ macro_rules! packet {
             pub fn deserialize(buf: &mut bytes::Bytes) -> $crate::error::Res<Self> {
                 use $crate::types::Serialize;
 
-                $(let $field: $ty = Serialize::deserialize(buf)?;)*
+                $(let $field: $ty = dbg!(Serialize::deserialize(buf)?);)*
 
                 Ok(Self {
                     $($field),*
@@ -162,6 +174,7 @@ macro_rules! int_enum {
 macro_rules! data {
     ($($name:ident { $($field:ident: $ty:ty),* });*) => {
         $(
+            #[derive(Debug, Clone)]
             pub struct $name {
                 $(pub $field: $ty),*
             }

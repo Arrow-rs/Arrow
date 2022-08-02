@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize, Serializer};
 use crate::{error::ProtocolError, types::Serialize as Ser};
 
 #[serde_with::skip_serializing_none]
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
 pub struct Chat {
     #[serde(flatten)]
     pub component: Component,
@@ -108,7 +108,7 @@ impl Chat {
 }
 
 #[serde_with::skip_serializing_none]
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(untagged)]
 pub enum Component {
     String(TextComponent),
@@ -134,17 +134,17 @@ impl Default for Component {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct TextComponent {
     pub text: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct KeybindComponent {
     pub keybind: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
 pub enum Font {
     #[serde(rename = "minecraft:uniform")]
     Uniform,
@@ -154,7 +154,7 @@ pub enum Font {
     Default,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
 #[serde(untagged)]
 pub enum Color {
     NormalColor(NormalColor),
@@ -218,7 +218,7 @@ where
     d.deserialize_str(WebColorVisitor)
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum NormalColor {
     Black,
@@ -239,7 +239,7 @@ pub enum NormalColor {
     White,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
 pub enum ColorFormatCode {
     #[serde(rename = "§0")]
     Black,
@@ -287,13 +287,13 @@ pub enum ColorFormatCode {
     Reset,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct ClickEvent {
     pub action: ClickEventAction,
     pub value: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum ClickEventAction {
     OpenUrl,
@@ -303,13 +303,13 @@ pub enum ClickEventAction {
     CopyToClipboard,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct HoverEvent {
     pub action: HoverEventAction,
     pub value: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum HoverEventAction {
     ShowText,

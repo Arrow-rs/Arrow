@@ -25,6 +25,7 @@ pub enum Protocol {
     Play(Play),
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct PacketCompression {
     pub enabled: bool,
     pub threshold: usize,
@@ -44,9 +45,9 @@ impl Protocol {
         let mut buf = BytesMut::new();
 
         VarInt(id).serialize(&mut buf);
-        buf.copy_from_slice(&data);
+        buf.extend_from_slice(&data);
 
-        if compression.enabled {
+        if compression.enabled && compression.threshold != 0 {
             if buf.len() >= compression.threshold {
                 let data_len = VarInt(buf.len() as i32);
 
@@ -91,7 +92,7 @@ impl Protocol {
                 }
             }
 
-            bytes = Bytes::copy_from_slice(&vec);
+            bytes = Bytes::from(vec.into_boxed_slice());
         }
 
         let id = VarInt::deserialize(&mut bytes)?.0;
