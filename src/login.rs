@@ -32,7 +32,7 @@ packets! {
     };
     EncryptionResponse(0x01) {
         shared_secret: SharedSecret,
-        verify_token: Either<VerifyToken, SaltSignature>
+        verify: Either<EncryptedVerifyToken, SaltSignature>
     };
     LoginPluginResponse(0x02) {
         message_id: VarInt,
@@ -45,7 +45,7 @@ packets! {
     EncryptionRequest(0x01) {
         server_id: String,
         public_key: RsaPublicKey,
-        verify_token: Vec<u8>
+        verify_token: VerifyToken
     };
     LoginSuccess(0x02) {
         uuid: Uuid,
@@ -71,14 +71,17 @@ data! {
     SharedSecret {
         encrypted_secret: Vec<u8>
     };
-    VerifyToken {
-        verify_token: Vec<u8>
+    EncryptedVerifyToken {
+        encrypted_token: Vec<u8>
     };
     SaltSignature {
         salt: i64,
         signature: Vec<u8>
     };
 
+    VerifyToken {
+        verify_token: Vec<u8>
+    };
     LoginSuccessProperty {
         name: String,
         value: String,
@@ -102,5 +105,22 @@ impl SharedSecret {
         secret
             .try_into()
             .map_err(|_| DeserializeError::InvalidSharedSecretLength)
+    }
+}
+
+impl EncryptedVerifyToken {
+    pub fn encrypt(verify_token: &[u8], public_key: RsaPublicKey) -> SerRes<Self> {
+        let mut rng = rand::thread_rng();
+
+        let encrypted_token =
+            public_key.encrypt(&mut rng, PaddingScheme::PKCS1v15Encrypt, verify_token)?;
+
+        Ok(Self { encrypted_token })
+    }
+
+    pub fn decrypt(&self, private_key: RsaPrivateKey) -> DeRes<Vec<u8>> {
+        let token = private_key.decrypt(PaddingScheme::PKCS1v15Encrypt, &self.encrypted_token)?;
+
+        Ok(token)
     }
 }
