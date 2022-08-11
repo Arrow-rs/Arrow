@@ -1,6 +1,10 @@
+use aes::cipher::BlockDecryptMut;
 use bytes::{Buf, BufMut, Bytes, BytesMut};
 
-use crate::error::{ProtocolError, Res};
+use crate::{
+    error::{DeRes, DeserializeError, SerRes},
+    Decryptor,
+};
 
 use super::Serialize;
 
@@ -10,6 +14,7 @@ pub struct VarInt(pub i32);
 pub struct VarLong(pub i64);
 
 impl VarInt {
+    #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> usize {
         const MIN_1B: i32 = 0;
         const MAX_1B: i32 = 2i32.pow(7) - 1;
@@ -30,8 +35,33 @@ impl VarInt {
     }
 }
 
+pub(crate) fn read_encrypted_varint(buf: &mut Bytes, decryptor: &mut Decryptor) -> DeRes<i32> {
+    let mut value = 0;
+    let mut len = 0;
+
+    while {
+        if buf.remaining() == 0 {
+            return Err(DeserializeError::UnexpectedEof);
+        }
+        let b = &mut [0];
+        decryptor.decrypt_block_b2b_mut(&[buf.get_u8()].into(), b.into());
+        let b = b[0] as u32;
+        value |= (b & 0x7f) << (len * 7);
+
+        len += 1;
+
+        if len > 5 {
+            return Err(DeserializeError::VarIntTooLong);
+        };
+
+        (b & 0x80) != 0
+    } {}
+
+    Ok(value as i32)
+}
+
 impl Serialize for VarInt {
-    fn serialize(&self, buf: &mut BytesMut) {
+    fn serialize(&self, buf: &mut BytesMut) -> SerRes<()> {
         let mut value = self.0 as u32;
 
         loop {
@@ -43,15 +73,17 @@ impl Serialize for VarInt {
             buf.put_u8((value as u8 & 0x7F) | 0x80);
             value >>= 7;
         }
+
+        Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> Res<Self> {
+    fn deserialize(buf: &mut Bytes) -> DeRes<Self> {
         let mut value = 0;
         let mut len = 0;
 
         while {
             if buf.remaining() == 0 {
-                return Err(ProtocolError::UnexpectedEof);
+                return Err(DeserializeError::UnexpectedEof);
             }
             let b = buf.get_u8() as u32;
             value |= (b & 0x7f) << (len * 7);
@@ -59,7 +91,7 @@ impl Serialize for VarInt {
             len += 1;
 
             if len > 5 {
-                return Err(ProtocolError::VarIntTooLong);
+                return Err(DeserializeError::VarIntTooLong);
             };
 
             (b & 0x80) != 0
@@ -70,7 +102,7 @@ impl Serialize for VarInt {
 }
 
 impl Serialize for VarLong {
-    fn serialize(&self, buf: &mut BytesMut) {
+    fn serialize(&self, buf: &mut BytesMut) -> SerRes<()> {
         let mut value = self.0 as u64;
 
         loop {
@@ -82,15 +114,17 @@ impl Serialize for VarLong {
             buf.put_u8((value as u8 & 0x7F) | 0x80);
             value >>= 7;
         }
+
+        Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> Res<Self> {
+    fn deserialize(buf: &mut Bytes) -> DeRes<Self> {
         let mut value = 0;
         let mut len = 0;
 
         while {
             if buf.remaining() == 0 {
-                return Err(ProtocolError::UnexpectedEof);
+                return Err(DeserializeError::UnexpectedEof);
             }
             let b = buf.get_u8() as u64;
             value |= (b & 0x7f) << (len * 7);
@@ -98,7 +132,7 @@ impl Serialize for VarLong {
             len += 1;
 
             if len > 10 {
-                return Err(ProtocolError::VarIntTooLong);
+                return Err(DeserializeError::VarIntTooLong);
             };
 
             (b & 0x80) != 0

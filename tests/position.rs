@@ -12,7 +12,7 @@ fn position() {
 
     let mut buf = BytesMut::new();
 
-    pos.serialize(&mut buf);
+    pos.serialize(&mut buf).unwrap();
 
     let pos2 = Position::deserialize(&mut buf.freeze()).unwrap();
 

@@ -7,25 +7,25 @@ macro_rules! state {
         }
 
         impl $name {
-            pub fn serialize(&self) -> (i32, Vec<u8>) {
+            pub fn serialize(&self) -> $crate::error::SerRes<(i32, Vec<u8>)> {
                 match self {
                     $(Self::$sbvariant(variant) => variant.serialize(),)*
                     $(Self::$cbvariant(variant) => variant.serialize(),)*
                 }
             }
 
-            pub fn deserialize(bound: $crate::Bound, id: i32, bytes: &mut bytes::Bytes) -> $crate::error::Res<Self> {
+            pub fn deserialize(bound: $crate::Bound, id: i32, bytes: &mut bytes::Bytes) -> $crate::error::DeRes<Self> {
                 match bound {
                     $crate::Bound::Serverbound => {
                         match id {
                             $($sbid => Ok(Self::$sbvariant(<$sbpacket>::deserialize(bytes)?)),)*
-                            _ => Err($crate::error::ProtocolError::UnknownPacketId(bound, $crate::State::$name, id))
+                            _ => Err($crate::error::DeserializeError::UnknownPacketId(bound, $crate::State::$name, id))
                         }
                     }
                     $crate::Bound::Clientbound => {
                         match id {
                             $($cbid => Ok(Self::$cbvariant(<$cbpacket>::deserialize(bytes)?)),)*
-                            _ => Err($crate::error::ProtocolError::UnknownPacketId(bound, $crate::State::$name, id))
+                            _ => Err($crate::error::DeserializeError::UnknownPacketId(bound, $crate::State::$name, id))
                         }
                     }
                 }
@@ -61,11 +61,11 @@ macro_rules! packet {
         pub struct $name;
 
         impl $name {
-            pub fn serialize(&self) -> (i32, Vec<u8>) {
-                ($id, vec![])
+            pub fn serialize(&self) -> $crate::error::SerRes<(i32, Vec<u8>)> {
+                Ok(($id, vec![]))
             }
 
-            pub fn deserialize(_: &mut bytes::Bytes) -> $crate::error::Res<Self> {
+            pub fn deserialize(_: &mut bytes::Bytes) -> $crate::error::DeRes<Self> {
                 Ok(Self)
             }
 
@@ -79,17 +79,17 @@ macro_rules! packet {
         }
 
         impl $name {
-            pub fn serialize(&self) -> (i32, Vec<u8>) {
+            pub fn serialize(&self) -> $crate::error::SerRes<(i32, Vec<u8>)> {
                 use $crate::types::Serialize;
 
                 let mut data = bytes::BytesMut::new();
 
-                $(self.$field.serialize(&mut data);)*
+                $(self.$field.serialize(&mut data)?;)*
 
-                ($id, data.to_vec())
+                Ok(($id, data.to_vec()))
             }
 
-            pub fn deserialize(buf: &mut bytes::Bytes) -> $crate::error::Res<Self> {
+            pub fn deserialize(buf: &mut bytes::Bytes) -> $crate::error::DeRes<Self> {
                 use $crate::types::Serialize;
 
                 $(let $field: $ty = dbg!(Serialize::deserialize(buf)?);)*
@@ -113,24 +113,24 @@ macro_rules! varint_enum {
             }
 
             impl $crate::types::Serialize for $name {
-                fn serialize(&self, buf: &mut bytes::BytesMut) {
+                fn serialize(&self, buf: &mut bytes::BytesMut) -> $crate::error::SerRes<()> {
                     use $crate::types::varint::VarInt;
 
                     let val = *self as i32;
 
                     let varint = VarInt(val);
 
-                    varint.serialize(buf);
+                    varint.serialize(buf)
                 }
 
-                fn deserialize(buf: &mut bytes::Bytes) -> $crate::error::Res<Self> {
-                    use $crate::{error::ProtocolError, types::varint::VarInt};
+                fn deserialize(buf: &mut bytes::Bytes) -> $crate::error::DeRes<Self> {
+                    use $crate::{error::DeserializeError, types::varint::VarInt};
 
                     let varint = VarInt::deserialize(buf)?;
 
                     match varint.0 {
                         $($value => Ok(Self::$variant),)*
-                        _ => Err(ProtocolError::InvalidEnumVariant(stringify!($name), varint.0 as isize))
+                        _ => Err(DeserializeError::InvalidEnumVariant(stringify!($name), varint.0 as isize))
                     }
                 }
             }
@@ -149,20 +149,20 @@ macro_rules! int_enum {
             }
 
             impl $crate::types::Serialize for $name {
-                fn serialize(&self, buf: &mut bytes::BytesMut) {
+                fn serialize(&self, buf: &mut bytes::BytesMut) -> $crate::error::SerRes<()> {
                     let val = *self as $int;
 
-                    val.serialize(buf);
+                    val.serialize(buf)
                 }
 
-                fn deserialize(buf: &mut bytes::Bytes) -> $crate::error::Res<Self> {
-                    use $crate::error::ProtocolError;
+                fn deserialize(buf: &mut bytes::Bytes) -> $crate::error::DeRes<Self> {
+                    use $crate::error::DeserializeError;
 
                     let val = <$int>::deserialize(buf)?;
 
                     match val {
                         $($value => Ok(Self::$variant),)*
-                        _ => Err(ProtocolError::InvalidEnumVariant(stringify!($name), val as isize))
+                        _ => Err(DeserializeError::InvalidEnumVariant(stringify!($name), val as isize))
                     }
                 }
             }
@@ -180,11 +180,12 @@ macro_rules! data {
             }
 
             impl $crate::types::Serialize for $name {
-                fn serialize(&self, buf: &mut bytes::BytesMut) {
-                    $(self.$field.serialize(buf);)*
+                fn serialize(&self, buf: &mut bytes::BytesMut) -> $crate::error::SerRes<()> {
+                    $(self.$field.serialize(buf)?;)*
+                    Ok(())
                 }
 
-                fn deserialize(buf: &mut bytes::Bytes) -> $crate::error::Res<Self> {
+                fn deserialize(buf: &mut bytes::Bytes) -> $crate::error::DeRes<Self> {
                     use $crate::types::Serialize;
 
                     $(let $field: $ty = Serialize::deserialize(buf)?;)*

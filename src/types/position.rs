@@ -1,3 +1,5 @@
+use crate::error::{DeRes, SerRes};
+
 use super::Serialize;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -8,17 +10,19 @@ pub struct Position {
 }
 
 impl Serialize for Position {
-    fn serialize(&self, buf: &mut bytes::BytesMut) {
+    fn serialize(&self, buf: &mut bytes::BytesMut) -> SerRes<()> {
         let x = self.x as u64 & 0x1ffffff | ((self.x.is_negative() as u64) << 25);
         let z = self.z as u64 & 0x1ffffff | ((self.z.is_negative() as u64) << 25);
         let y = self.y as u64 & 0x7ff | ((self.y.is_negative() as u64) << 11);
 
         let pos = x << 38 | z << 12 | y;
 
-        pos.serialize(buf);
+        pos.serialize(buf)?;
+
+        Ok(())
     }
 
-    fn deserialize(buf: &mut bytes::Bytes) -> crate::error::Res<Self>
+    fn deserialize(buf: &mut bytes::Bytes) -> DeRes<Self>
     where
         Self: Sized,
     {

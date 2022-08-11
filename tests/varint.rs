@@ -11,7 +11,7 @@ macro_rules! test {
                 let varint = $ty($val);
                 let bytes = [$($b),*].as_slice();
 
-                varint.serialize(&mut buf);
+                varint.serialize(&mut buf).unwrap();
 
                 assert_eq!(buf, bytes);
                 assert_eq!(varint, $ty::deserialize(&mut Bytes::from(bytes)).unwrap());

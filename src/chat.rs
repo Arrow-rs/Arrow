@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize, Serializer};
 
-use crate::{error::ProtocolError, types::Serialize as Ser};
+use crate::{
+    error::{DeRes, DeserializeError, SerRes},
+    types::Serialize as Ser,
+};
 
 #[serde_with::skip_serializing_none]
 #[derive(Serialize, Deserialize, Default, Debug, Clone, PartialEq)]
@@ -23,18 +26,19 @@ pub struct Chat {
 }
 
 impl Ser for Chat {
-    fn serialize(&self, buf: &mut bytes::BytesMut) {
+    fn serialize(&self, buf: &mut bytes::BytesMut) -> SerRes<()> {
         let s = serde_json::to_string(&self).unwrap();
-        Ser::serialize(&s, buf);
+
+        Ser::serialize(&s, buf)
     }
 
-    fn deserialize(buf: &mut bytes::Bytes) -> crate::error::Res<Self>
+    fn deserialize(buf: &mut bytes::Bytes) -> DeRes<Self>
     where
         Self: Sized,
     {
         let s: String = Ser::deserialize(buf)?;
 
-        serde_json::from_str(&s).map_err(ProtocolError::JsonError)
+        serde_json::from_str(&s).map_err(DeserializeError::JsonError)
     }
 }
 

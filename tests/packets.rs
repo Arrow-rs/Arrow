@@ -1,8 +1,9 @@
+use aes::cipher::KeyIvInit;
 use arrow_protocol::{
     chat::Chat,
-    handshake::{Handshake, NextState},
+    handshake::NextState,
     types::{varint::VarInt, Serialize},
-    Bound, PacketCompression, Protocol, State,
+    Bound, Decryptor, Encryptor, PacketCompression, Protocol, State,
 };
 use bytes::Bytes;
 
@@ -16,11 +17,15 @@ macro_rules! test_packet {
 
         let protocol = Protocol::$state(packet.clone().into());
 
-        let mut bytes = Bytes::from(protocol.serialize(compression).into_boxed_slice());
-        let _len = VarInt::deserialize(&mut bytes);
+        let key = [0x42; 16];
+
+        let mut encryptor = Encryptor::new(&key.into(), &key.into());
+        let mut decryptor = Decryptor::new(&key.into(), &key.into());
+
+        let mut bytes = Bytes::from(protocol.serialize(compression, Some(&mut encryptor)).unwrap().into_boxed_slice());
 
         let protocol2 =
-            Protocol::deserialize(Bound::$bound, State::$state, compression, bytes).unwrap();
+            Protocol::deserialize(Bound::$bound, State::$state, compression, Some(&mut decryptor), &mut bytes).unwrap();
 
         #[allow(unused_parens)]
         if let Protocol::$state($(arrow_protocol::$module::$state::$state_name)?(packet2)) = protocol2 {

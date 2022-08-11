@@ -1,8 +1,11 @@
+use rsa::{PaddingScheme, PublicKey, RsaPrivateKey, RsaPublicKey};
 use uuid::Uuid;
 
 use crate::{
     chat::Chat,
-    data, packets, state,
+    data,
+    error::{DeRes, DeserializeError, SerRes},
+    packets, state,
     types::{varint::VarInt, Either},
 };
 
@@ -28,7 +31,7 @@ packets! {
         sig_data: Option<SigData>
     };
     EncryptionResponse(0x01) {
-        shared_secret: Vec<u8>,
+        shared_secret: SharedSecret,
         verify_token: Either<VerifyToken, SaltSignature>
     };
     LoginPluginResponse(0x02) {
@@ -41,7 +44,7 @@ packets! {
     };
     EncryptionRequest(0x01) {
         server_id: String,
-        public_key: Vec<u8>,
+        public_key: RsaPublicKey,
         verify_token: Vec<u8>
     };
     LoginSuccess(0x02) {
@@ -65,6 +68,9 @@ data! {
         public_key: Vec<u8>,
         signature: Vec<u8>
     };
+    SharedSecret {
+        encrypted_secret: Vec<u8>
+    };
     VerifyToken {
         verify_token: Vec<u8>
     };
@@ -77,5 +83,24 @@ data! {
         name: String,
         value: String,
         signature: Option<String>
+    }
+}
+
+impl SharedSecret {
+    pub fn encrypt(secret: &[u8; 16], public_key: RsaPublicKey) -> SerRes<Self> {
+        let mut rng = rand::thread_rng();
+
+        let encrypted_secret =
+            public_key.encrypt(&mut rng, PaddingScheme::PKCS1v15Encrypt, secret)?;
+
+        Ok(Self { encrypted_secret })
+    }
+
+    pub fn decrypt(&self, private_key: RsaPrivateKey) -> DeRes<[u8; 16]> {
+        let secret = private_key.decrypt(PaddingScheme::PKCS1v15Encrypt, &self.encrypted_secret)?;
+
+        secret
+            .try_into()
+            .map_err(|_| DeserializeError::InvalidSharedSecretLength)
     }
 }
