@@ -41,7 +41,6 @@ packets! {
     };
     ChatMessage(0x04) {
         message: String,
-        // TODO: Find out whether i64 is the correct type
         timestamp: i64,
         salt: i64,
         signature: Vec<u8>,

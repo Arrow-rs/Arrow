@@ -28,6 +28,8 @@ pub enum DeserializeError {
     InvalidSharedSecretLength,
     #[error("{0}")]
     RsaError(#[from] RsaError),
+    #[error("{0}")]
+    ZlibError(String),
 }
 
 #[derive(Error, Debug)]

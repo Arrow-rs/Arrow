@@ -71,7 +71,7 @@ impl Protocol {
 
                 VarInt((data_len.len() + compressed.len()) as i32).serialize(&mut packet)?;
                 data_len.serialize(&mut packet)?;
-                compressed.serialize(&mut packet)?;
+                packet.put_slice(&compressed);
             } else {
                 VarInt(buf.len() as i32 + 1).serialize(&mut packet)?;
                 packet.put_u8(0);
@@ -83,6 +83,7 @@ impl Protocol {
         }
 
         let mut packet: Vec<_> = packet.into_iter().map(|b| [b].into()).collect();
+        println!("{packet:?}");
 
         if let Some(encryptor) = encryptor {
             encryptor.encrypt_blocks_mut(&mut packet);
@@ -100,6 +101,7 @@ impl Protocol {
     ) -> DeRes<Self> {
         let mut bytes = if let Some(decryptor) = decryptor {
             let len = read_encrypted_varint(packet, decryptor)? as usize;
+            dbg!(len);
 
             let packet = packet.split_to(len);
 
@@ -117,17 +119,26 @@ impl Protocol {
         if compression.enabled {
             let data_len = VarInt::deserialize(&mut bytes)?.0 as usize;
 
-            let mut decoder = ZlibDecoder::new(&bytes[..]);
-            let mut vec = Vec::with_capacity(data_len);
+            dbg!(data_len);
+            if data_len != 0 {
+                let compressed = &bytes[..];
+                let mut decoder = ZlibDecoder::new(compressed);
+                let mut vec = Vec::with_capacity(data_len);
 
-            if let Err(e) = decoder.read_to_end(&mut vec) {
-                match e.kind() {
-                    io::ErrorKind::UnexpectedEof => return Err(DeserializeError::UnexpectedEof),
-                    _ => unreachable!(),
+                if let Err(e) = decoder.read_to_end(&mut vec) {
+                    match e.kind() {
+                        io::ErrorKind::UnexpectedEof => {
+                            return Err(DeserializeError::UnexpectedEof)
+                        }
+                        io::ErrorKind::InvalidInput => {
+                            return Err(DeserializeError::ZlibError(e.to_string()))
+                        }
+                        _ => unreachable!(),
+                    }
                 }
-            }
 
-            bytes = Bytes::from(vec.into_boxed_slice());
+                bytes = Bytes::from(vec.into_boxed_slice());
+            }
         }
 
         let id = VarInt::deserialize(&mut bytes)?.0;
