@@ -12,16 +12,16 @@ use crate::{
 state! {
     Login;
     serverbound {
-        0x00 => LoginStart(LoginStart),
-        0x01 => EncryptionResponse(EncryptionResponse),
-        0x02 => LoginPLuginRespnse(LoginPluginResponse)
+        0x00 => LoginStart,
+        0x01 => EncryptionResponse,
+        0x02 => LoginPluginResponse
     };
     clientbound {
-        0x00 => Disconnect(LoginDisconnect),
-        0x01 => EncryptionRequest(EncryptionRequest),
-        0x02 => LoginSuccess(LoginSuccess),
-        0x03 => SetCompression(SetCompression),
-        0x04 => LoginPluginRequest(LoginPluginRequest)
+        0x00 => LoginDisconnect,
+        0x01 => EncryptionRequest,
+        0x02 => LoginSuccess,
+        0x03 => SetCompression,
+        0x04 => LoginPluginRequest
     }
 }
 

@@ -7,14 +7,16 @@ use crate::{
 state! {
     Play;
     serverbound {
-        0x00 => ConfirmTeleportation(ConfirmTeleportation),
-        0x01 => QueryBlockEntityTag(QueryBlockEntityTag),
-        0x02 => ChangeDifficulty(ChangeDifficulty),
-        0x03 => ChatCommand(ChatCommand),
-        0x04 => ChatMessage(ChatMessage),
-        0x05 => ChatPreview(ChatPreview),
-        0x06 => ClientCommand(ClientCommand),
-        0x07 => ClientInformation(ClientInformation)
+        0x00 => ConfirmTeleportation,
+        0x01 => QueryBlockEntityTag,
+        0x02 => ChangeDifficulty,
+        0x03 => ChatCommand,
+        0x04 => ChatMessage,
+        0x05 => ChatPreview,
+        0x06 => ClientCommand,
+        0x07 => ClientInformation,
+        0x08 => CommandSuggestionsRequest,
+        0x09 => ClickContainerButton
     };
     clientbound {
 
@@ -63,6 +65,14 @@ packets! {
         main_hand: MainHand,
         enable_text_filtering: bool,
         allow_server_listings: bool
+    };
+    CommandSuggestionsRequest(0x08) {
+        id: VarInt,
+        text: String
+    };
+    ClickContainerButton(0x09) {
+        window_id: u8,
+        button_id: u8
     }
 }
 

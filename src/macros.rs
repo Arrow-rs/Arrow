@@ -1,16 +1,16 @@
 #[macro_export]
 macro_rules! state {
-    ($name:ident; serverbound { $($sbid:literal => $sbvariant:ident($sbpacket:ty)),* }; clientbound { $($cbid:literal => $cbvariant:ident($cbpacket:ty)),* } ) => {
+    ($name:ident; serverbound { $($sbid:literal => $sbpacket:ident),* }; clientbound { $($cbid:literal => $cbpacket:ident),* } ) => {
         pub enum $name {
-            $($sbvariant($sbpacket),)*
-            $($cbvariant($cbpacket),)*
+            $($sbpacket($sbpacket),)*
+            $($cbpacket($cbpacket),)*
         }
 
         impl $name {
             pub fn serialize(&self) -> $crate::error::SerRes<(i32, Vec<u8>)> {
                 match self {
-                    $(Self::$sbvariant(variant) => variant.serialize(),)*
-                    $(Self::$cbvariant(variant) => variant.serialize(),)*
+                    $(Self::$sbpacket(variant) => variant.serialize(),)*
+                    $(Self::$cbpacket(variant) => variant.serialize(),)*
                 }
             }
 
@@ -18,13 +18,13 @@ macro_rules! state {
                 match bound {
                     $crate::Bound::Serverbound => {
                         match id {
-                            $($sbid => Ok(Self::$sbvariant(<$sbpacket>::deserialize(bytes)?)),)*
+                            $($sbid => Ok(Self::$sbpacket(<$sbpacket>::deserialize(bytes)?)),)*
                             _ => Err($crate::error::DeserializeError::UnknownPacketId(bound, $crate::State::$name, id))
                         }
                     }
                     $crate::Bound::Clientbound => {
                         match id {
-                            $($cbid => Ok(Self::$cbvariant(<$cbpacket>::deserialize(bytes)?)),)*
+                            $($cbid => Ok(Self::$cbpacket(<$cbpacket>::deserialize(bytes)?)),)*
                             _ => Err($crate::error::DeserializeError::UnknownPacketId(bound, $crate::State::$name, id))
                         }
                     }
@@ -34,12 +34,12 @@ macro_rules! state {
 
         $(impl From<$sbpacket> for $name {
             fn from(p: $sbpacket) -> Self {
-                Self::$sbvariant(p)
+                Self::$sbpacket(p)
             }
         })*
         $(impl From<$cbpacket> for $name {
             fn from(p: $cbpacket) -> Self {
-                Self::$cbvariant(p)
+                Self::$cbpacket(p)
             }
         })*
     }

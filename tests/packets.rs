@@ -46,7 +46,7 @@ fn login_disconnect() {
     test_packet! {
         login::LoginDisconnect {
             reason: Chat::default().with_bold(true)
-        } = Clientbound(Login); Disconnect
+        } = Clientbound(Login); LoginDisconnect
     }
 }
 
