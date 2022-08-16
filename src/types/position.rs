@@ -2,7 +2,7 @@ use crate::error::{DeRes, SerRes};
 
 use super::Serialize;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Position {
     pub x: i32,
     pub y: i16,

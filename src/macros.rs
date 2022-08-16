@@ -107,7 +107,7 @@ macro_rules! varint_enum {
     ($($name:ident { $($variant:ident = $value:literal),* });*) => {
         $(
             #[repr(i32)]
-            #[derive(Debug, Clone, Copy, PartialEq)]
+            #[derive(Debug, Clone, Copy, PartialEq, Eq)]
             pub enum $name {
                 $($variant = $value),*
             }
@@ -143,7 +143,7 @@ macro_rules! int_enum {
     ($($name:ident($int:ty) { $($variant:ident = $value:literal),* });*) => {
         $(
             #[repr($int)]
-            #[derive(Debug, Clone, Copy, PartialEq)]
+            #[derive(Debug, Clone, Copy, PartialEq, Eq)]
             pub enum $name {
                 $($variant = $value),*
             }

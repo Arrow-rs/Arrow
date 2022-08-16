@@ -1,6 +1,7 @@
 pub mod chat;
 pub mod error;
 pub mod handshake;
+pub mod legacy;
 pub mod login;
 pub(crate) mod macros;
 pub mod play;
@@ -155,7 +156,7 @@ impl Protocol {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Bound {
     Serverbound,
     Clientbound,
@@ -170,7 +171,7 @@ impl fmt::Display for Bound {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum State {
     Handshake,
     Status,
