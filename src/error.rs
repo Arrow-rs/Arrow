@@ -34,6 +34,8 @@ pub enum DeserializeError {
     RsaError(#[from] RsaError),
     #[error("{0}")]
     ZlibError(String),
+    #[error("{0}")]
+    NbtError(#[from] nbt::Error),
 }
 
 #[derive(Error, Debug)]
@@ -44,4 +46,6 @@ pub enum SerializeError {
     SpkiError(#[from] SpkiError),
     #[error("{0}")]
     RsaError(#[from] RsaError),
+    #[error("{0}")]
+    NbtError(#[from] nbt::Error),
 }

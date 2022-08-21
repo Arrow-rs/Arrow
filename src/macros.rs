@@ -1,4 +1,3 @@
-#[macro_export]
 macro_rules! state {
     ($name:ident; serverbound { $($sbid:literal => $sbpacket:ident),* }; clientbound { $($cbid:literal => $cbpacket:ident),* } ) => {
         pub enum $name {
@@ -45,7 +44,6 @@ macro_rules! state {
     }
 }
 
-#[macro_export]
 macro_rules! packets {
     ($($name:ident($id:literal) $({ $($field:ident: $ty:ty),+ })?);*) => {
         $(
@@ -54,7 +52,6 @@ macro_rules! packets {
     }
 }
 
-#[macro_export]
 macro_rules! packet {
     ($name:ident($id:literal)) => {
         #[derive(Debug, Clone)]
@@ -102,7 +99,6 @@ macro_rules! packet {
     };
 }
 
-#[macro_export]
 macro_rules! varint_enum {
     ($($name:ident { $($variant:ident = $value:literal),* });*) => {
         $(
@@ -138,7 +134,6 @@ macro_rules! varint_enum {
     }
 }
 
-#[macro_export]
 macro_rules! int_enum {
     ($($name:ident($int:ty) { $($variant:ident = $value:literal),* });*) => {
         $(
@@ -170,7 +165,6 @@ macro_rules! int_enum {
     }
 }
 
-#[macro_export]
 macro_rules! data {
     ($($name:ident { $($field:ident: $ty:ty),* });*) => {
         $(
@@ -196,5 +190,59 @@ macro_rules! data {
                 }
             }
         )*
+    }
+}
+
+macro_rules! nbt_data {
+    ($($name:ident { $($field:ident: $ty:ty),* });*) => {
+        $(
+            #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+            pub struct $name {
+                $(pub $field: $ty),*
+            }
+
+            impl $crate::types::Serialize for $name {
+                fn serialize(&self, buf: &mut bytes::BytesMut) -> $crate::error::SerRes<()> {
+                    nbt::to_writer(&mut bytes::BufMut::writer(buf), &self, None).map_err(Into::into)
+                }
+
+                fn deserialize(buf: &mut bytes::Bytes) -> $crate::error::DeRes<Self> {
+                    nbt::from_reader(&mut bytes::Buf::reader(buf)).map_err(Into::into)
+                }
+            }
+        )*
+    }
+}
+
+pub(crate) use {data, int_enum, nbt_data, packet, packets, state, varint_enum};
+
+mod test {
+    #[test]
+    fn nbt_data() {
+        use crate::types::Serialize;
+        use bytes::BytesMut;
+
+        nbt_data! {
+            NbtData {
+                s: String,
+                num: i32
+            }
+        }
+
+        let nbt = NbtData {
+            s: "foo".to_string(),
+            num: 42,
+        };
+
+        let mut buf = BytesMut::new();
+
+        nbt.serialize(&mut buf).unwrap();
+
+        let mut buf = buf.freeze();
+
+        let nbt2: NbtData = crate::types::Serialize::deserialize(&mut buf).unwrap();
+
+        assert_eq!(nbt.s, nbt2.s);
+        assert_eq!(nbt.num, nbt2.num);
     }
 }

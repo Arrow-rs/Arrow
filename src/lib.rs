@@ -1,9 +1,11 @@
+pub(crate) mod macros;
+pub(crate) use macros::*;
+
 pub mod chat;
 pub mod error;
 pub mod handshake;
 pub mod legacy;
 pub mod login;
-pub(crate) mod macros;
 pub mod play;
 pub mod status;
 pub mod types;
