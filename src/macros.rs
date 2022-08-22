@@ -89,7 +89,7 @@ macro_rules! packet {
             pub fn deserialize(buf: &mut bytes::BytesMut) -> $crate::error::DeRes<Self> {
                 use $crate::types::Serialize;
 
-                $(let $field: $ty = dbg!(Serialize::deserialize(buf)?);)*
+                $(let $field: $ty = Serialize::deserialize(buf)?;)*
 
                 Ok(Self {
                     $($field),*

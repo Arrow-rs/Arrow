@@ -128,7 +128,6 @@ impl Protocol {
         if compression.enabled {
             let data_len = VarInt::deserialize(&mut bytes)?.0 as usize;
 
-            dbg!(data_len);
             if data_len != 0 {
                 let compressed = &bytes[..];
                 let mut decoder = ZlibDecoder::new(compressed);
