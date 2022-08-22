@@ -291,6 +291,10 @@ impl Serialize for RsaPublicKey {
     {
         let len = VarInt::deserialize(buf)?.0 as usize;
 
+        if buf.remaining() < len {
+            return Err(DeserializeError::UnexpectedEof);
+        }
+
         let bytes = buf.split_to(len);
 
         RsaPublicKey::from_public_key_der(&bytes).map_err(Into::into)

@@ -16,7 +16,7 @@ use std::{
 };
 
 use aes::cipher::{BlockDecryptMut, BlockEncryptMut};
-use bytes::{BufMut, BytesMut};
+use bytes::{Buf, BufMut, BytesMut};
 use error::{DeRes, DeserializeError, SerRes};
 use flate2::{read::ZlibDecoder, write::ZlibEncoder, Compression};
 use handshake::Handshake;
@@ -103,7 +103,10 @@ impl Protocol {
     ) -> DeRes<Self> {
         let mut bytes = if let Some(decryptor) = decryptor {
             let len = read_encrypted_varint(packet, decryptor)? as usize;
-            dbg!(len);
+
+            if packet.remaining() < len {
+                return Err(DeserializeError::UnexpectedEof);
+            }
 
             let packet = packet.split_to(len);
 
@@ -114,6 +117,10 @@ impl Protocol {
             BytesMut::from_iter(buf.into_iter().flatten())
         } else {
             let len = VarInt::deserialize(packet)?.0 as usize;
+
+            if packet.remaining() < len {
+                return Err(DeserializeError::UnexpectedEof);
+            }
 
             packet.split_to(len)
         };
