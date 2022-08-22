@@ -86,7 +86,6 @@ impl Protocol {
         }
 
         let mut packet: Vec<_> = packet.into_iter().map(|b| [b].into()).collect();
-        println!("{packet:?}");
 
         if let Some(encryptor) = encryptor {
             encryptor.encrypt_blocks_mut(&mut packet);
