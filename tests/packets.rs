@@ -15,7 +15,7 @@ macro_rules! test_packet {
 
         let protocol = Protocol::$state(packet.clone().into());
 
-        let mut bytes = Bytes::from(protocol.serialize(compression, None).unwrap().into_boxed_slice());
+        let mut bytes = BytesMut::from(protocol.serialize(compression, None).unwrap().as_slice());
 
         let protocol2 =
             Protocol::deserialize(Bound::$bound, State::$state, compression, None, &mut bytes).unwrap();
@@ -86,7 +86,6 @@ fn encryption() {
             .serialize(compression, Some(&mut encryptor))
             .unwrap(),
     );
-    let mut bytes = bytes.freeze();
 
     let protocol1 = Protocol::deserialize(
         Bound::Serverbound,
@@ -132,12 +131,7 @@ fn compression() {
 
     let protocol = Protocol::Handshake(handshake.clone().into());
 
-    let mut bytes = Bytes::from(
-        protocol
-            .serialize(compression, None)
-            .unwrap()
-            .into_boxed_slice(),
-    );
+    let mut bytes = BytesMut::from(protocol.serialize(compression, None).unwrap().as_slice());
 
     let protocol = Protocol::deserialize(
         Bound::Serverbound,

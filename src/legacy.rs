@@ -1,4 +1,4 @@
-use bytes::{Buf, BufMut, Bytes, BytesMut};
+use bytes::{Buf, BufMut, BytesMut};
 
 use crate::{
     error::{DeRes, DeserializeError, SerRes},
@@ -19,7 +19,7 @@ impl LegacyRequest {
         Ok(vec![0xfe, 0x01, 0xfa])
     }
 
-    pub fn deserialize(b: &mut Bytes) -> DeRes<Self> {
+    pub fn deserialize(b: &mut BytesMut) -> DeRes<Self> {
         if b.remaining() < 3 {
             Err(DeserializeError::UnexpectedEof)
         } else if b[0..3] == [0xfe, 0x01, 0xfa] {
@@ -53,7 +53,7 @@ impl LegacyResponse {
         Ok(buf.to_vec())
     }
 
-    pub fn deserialize(b: &mut Bytes) -> DeRes<Self> {
+    pub fn deserialize(b: &mut BytesMut) -> DeRes<Self> {
         if !b.has_remaining() {
             return Err(DeserializeError::UnexpectedEof);
         }

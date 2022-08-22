@@ -3,7 +3,7 @@ pub mod varint;
 
 use std::fmt;
 
-use bytes::{Buf, BufMut, Bytes, BytesMut};
+use bytes::{Buf, BufMut, BytesMut};
 use rsa::{
     pkcs8::{DecodePublicKey, EncodePublicKey},
     RsaPublicKey,
@@ -16,7 +16,7 @@ use self::varint::VarInt;
 
 pub trait Serialize {
     fn serialize(&self, buf: &mut BytesMut) -> SerRes<()>;
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self>
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self>
     where
         Self: Sized;
 }
@@ -27,7 +27,7 @@ impl Serialize for bool {
         Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self> {
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self> {
         if !buf.has_remaining() {
             return Err(DeserializeError::UnexpectedEof);
         }
@@ -42,7 +42,7 @@ impl Serialize for u8 {
         Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self> {
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self> {
         if !buf.has_remaining() {
             return Err(DeserializeError::UnexpectedEof);
         }
@@ -57,7 +57,7 @@ impl Serialize for u16 {
         Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self> {
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self> {
         if buf.remaining() < 2 {
             return Err(DeserializeError::UnexpectedEof);
         }
@@ -72,7 +72,7 @@ impl Serialize for u32 {
         Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self> {
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self> {
         if buf.remaining() < 4 {
             return Err(DeserializeError::UnexpectedEof);
         }
@@ -87,7 +87,7 @@ impl Serialize for u64 {
         Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self> {
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self> {
         if buf.remaining() < 8 {
             return Err(DeserializeError::UnexpectedEof);
         }
@@ -102,7 +102,7 @@ impl Serialize for i8 {
         Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self> {
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self> {
         if !buf.has_remaining() {
             return Err(DeserializeError::UnexpectedEof);
         }
@@ -117,7 +117,7 @@ impl Serialize for i16 {
         Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self> {
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self> {
         if buf.remaining() < 2 {
             return Err(DeserializeError::UnexpectedEof);
         }
@@ -132,7 +132,7 @@ impl Serialize for i32 {
         Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self> {
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self> {
         if buf.remaining() < 4 {
             return Err(DeserializeError::UnexpectedEof);
         }
@@ -147,7 +147,7 @@ impl Serialize for i64 {
         Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self> {
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self> {
         if buf.remaining() < 8 {
             return Err(DeserializeError::UnexpectedEof);
         }
@@ -163,7 +163,7 @@ impl Serialize for String {
         Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self> {
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self> {
         let len = VarInt::deserialize(buf)?.0 as usize;
 
         if buf.remaining() < len {
@@ -186,7 +186,7 @@ impl<T: Serialize> Serialize for Option<T> {
         Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self> {
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self> {
         let present = bool::deserialize(buf)?;
 
         if present {
@@ -207,7 +207,7 @@ impl<T: Serialize> Serialize for Vec<T> {
         Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self> {
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self> {
         let len = VarInt::deserialize(buf)?.0 as usize;
 
         let mut vec = Vec::with_capacity(len);
@@ -244,7 +244,7 @@ impl<L: Serialize + fmt::Debug + Clone, R: Serialize + fmt::Debug + Clone> Seria
         Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self>
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self>
     where
         Self: Sized,
     {
@@ -264,7 +264,7 @@ impl Serialize for Uuid {
         Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self> {
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self> {
         if buf.remaining() < 16 {
             return Err(DeserializeError::UnexpectedEof);
         }
@@ -285,7 +285,7 @@ impl Serialize for RsaPublicKey {
         Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self>
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self>
     where
         Self: Sized,
     {

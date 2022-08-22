@@ -1,5 +1,5 @@
 use aes::cipher::BlockDecryptMut;
-use bytes::{Buf, BufMut, Bytes, BytesMut};
+use bytes::{Buf, BufMut, BytesMut};
 
 use crate::{
     error::{DeRes, DeserializeError, SerRes},
@@ -35,7 +35,7 @@ impl VarInt {
     }
 }
 
-pub(crate) fn read_encrypted_varint(buf: &mut Bytes, decryptor: &mut Decryptor) -> DeRes<i32> {
+pub(crate) fn read_encrypted_varint(buf: &mut BytesMut, decryptor: &mut Decryptor) -> DeRes<i32> {
     let mut value = 0;
     let mut len = 0;
 
@@ -77,7 +77,7 @@ impl Serialize for VarInt {
         Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self> {
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self> {
         let mut value = 0;
         let mut len = 0;
 
@@ -118,7 +118,7 @@ impl Serialize for VarLong {
         Ok(())
     }
 
-    fn deserialize(buf: &mut Bytes) -> DeRes<Self> {
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self> {
         let mut value = 0;
         let mut len = 0;
 

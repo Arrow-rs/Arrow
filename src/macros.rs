@@ -13,7 +13,7 @@ macro_rules! state {
                 }
             }
 
-            pub fn deserialize(bound: $crate::Bound, id: i32, bytes: &mut bytes::Bytes) -> $crate::error::DeRes<Self> {
+            pub fn deserialize(bound: $crate::Bound, id: i32, bytes: &mut bytes::BytesMut) -> $crate::error::DeRes<Self> {
                 match bound {
                     $crate::Bound::Serverbound => {
                         match id {
@@ -62,7 +62,7 @@ macro_rules! packet {
                 Ok(($id, vec![]))
             }
 
-            pub fn deserialize(_: &mut bytes::Bytes) -> $crate::error::DeRes<Self> {
+            pub fn deserialize(_: &mut bytes::BytesMut) -> $crate::error::DeRes<Self> {
                 Ok(Self)
             }
 
@@ -86,7 +86,7 @@ macro_rules! packet {
                 Ok(($id, data.to_vec()))
             }
 
-            pub fn deserialize(buf: &mut bytes::Bytes) -> $crate::error::DeRes<Self> {
+            pub fn deserialize(buf: &mut bytes::BytesMut) -> $crate::error::DeRes<Self> {
                 use $crate::types::Serialize;
 
                 $(let $field: $ty = dbg!(Serialize::deserialize(buf)?);)*
@@ -119,7 +119,7 @@ macro_rules! varint_enum {
                     varint.serialize(buf)
                 }
 
-                fn deserialize(buf: &mut bytes::Bytes) -> $crate::error::DeRes<Self> {
+                fn deserialize(buf: &mut bytes::BytesMut) -> $crate::error::DeRes<Self> {
                     use $crate::{error::DeserializeError, types::varint::VarInt};
 
                     let varint = VarInt::deserialize(buf)?;
@@ -150,7 +150,7 @@ macro_rules! int_enum {
                     val.serialize(buf)
                 }
 
-                fn deserialize(buf: &mut bytes::Bytes) -> $crate::error::DeRes<Self> {
+                fn deserialize(buf: &mut bytes::BytesMut) -> $crate::error::DeRes<Self> {
                     use $crate::error::DeserializeError;
 
                     let val = <$int>::deserialize(buf)?;
@@ -179,7 +179,7 @@ macro_rules! data {
                     Ok(())
                 }
 
-                fn deserialize(buf: &mut bytes::Bytes) -> $crate::error::DeRes<Self> {
+                fn deserialize(buf: &mut bytes::BytesMut) -> $crate::error::DeRes<Self> {
                     use $crate::types::Serialize;
 
                     $(let $field: $ty = Serialize::deserialize(buf)?;)*
@@ -206,7 +206,7 @@ macro_rules! nbt_data {
                     nbt::to_writer(&mut bytes::BufMut::writer(buf), &self, None).map_err(Into::into)
                 }
 
-                fn deserialize(buf: &mut bytes::Bytes) -> $crate::error::DeRes<Self> {
+                fn deserialize(buf: &mut bytes::BytesMut) -> $crate::error::DeRes<Self> {
                     nbt::from_reader(&mut bytes::Buf::reader(buf)).map_err(Into::into)
                 }
             }
@@ -237,8 +237,6 @@ mod test {
         let mut buf = BytesMut::new();
 
         nbt.serialize(&mut buf).unwrap();
-
-        let mut buf = buf.freeze();
 
         let nbt2: NbtData = crate::types::Serialize::deserialize(&mut buf).unwrap();
 

@@ -14,7 +14,7 @@ fn position() {
 
     pos.serialize(&mut buf).unwrap();
 
-    let pos2 = Position::deserialize(&mut buf.freeze()).unwrap();
+    let pos2 = Position::deserialize(&mut buf).unwrap();
 
     assert_eq!(pos, pos2);
 }

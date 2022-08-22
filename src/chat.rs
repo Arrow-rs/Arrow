@@ -32,7 +32,7 @@ impl Ser for Chat {
         Ser::serialize(&s, buf)
     }
 
-    fn deserialize(buf: &mut bytes::Bytes) -> DeRes<Self>
+    fn deserialize(buf: &mut bytes::BytesMut) -> DeRes<Self>
     where
         Self: Sized,
     {

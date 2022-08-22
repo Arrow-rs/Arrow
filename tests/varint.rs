@@ -1,4 +1,4 @@
-use bytes::{Bytes, BytesMut};
+use bytes::BytesMut;
 
 use arrow_protocol::types::{varint::*, Serialize};
 
@@ -14,7 +14,7 @@ macro_rules! test {
                 varint.serialize(&mut buf).unwrap();
 
                 assert_eq!(buf, bytes);
-                assert_eq!(varint, $ty::deserialize(&mut Bytes::from(bytes)).unwrap());
+                assert_eq!(varint, $ty::deserialize(&mut BytesMut::from(bytes)).unwrap());
                 buf.clear();
             }
         )*
