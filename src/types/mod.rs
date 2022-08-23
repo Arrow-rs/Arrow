@@ -1,4 +1,5 @@
 pub mod position;
+pub mod slot;
 pub mod varint;
 
 use std::fmt;
@@ -258,6 +259,36 @@ impl<L: Serialize + fmt::Debug + Clone, R: Serialize + fmt::Debug + Clone> Seria
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct InferredLenByteArray(pub Vec<u8>);
+
+impl From<InferredLenByteArray> for Vec<u8> {
+    fn from(array: InferredLenByteArray) -> Self {
+        array.0
+    }
+}
+
+impl From<Vec<u8>> for InferredLenByteArray {
+    fn from(vec: Vec<u8>) -> Self {
+        Self(vec)
+    }
+}
+
+impl Serialize for InferredLenByteArray {
+    fn serialize(&self, buf: &mut BytesMut) -> SerRes<()> {
+        buf.extend_from_slice(self.0.as_slice());
+
+        Ok(())
+    }
+
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self>
+    where
+        Self: Sized,
+    {
+        Ok(Self(buf[..buf.remaining()].to_vec()))
+    }
+}
+
 impl Serialize for Uuid {
     fn serialize(&self, buf: &mut BytesMut) -> SerRes<()> {
         buf.put(&self.as_bytes()[..]);
@@ -298,5 +329,45 @@ impl Serialize for RsaPublicKey {
         let bytes = buf.split_to(len);
 
         RsaPublicKey::from_public_key_der(&bytes).map_err(Into::into)
+    }
+}
+
+impl Serialize for nbt::Blob {
+    fn serialize(&self, buf: &mut BytesMut) -> SerRes<()> {
+        nbt::to_writer(&mut buf.writer(), &self, None).map_err(Into::into)
+    }
+
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self>
+    where
+        Self: Sized,
+    {
+        nbt::from_reader(&mut buf.reader()).map_err(Into::into)
+    }
+}
+
+impl<A: Serialize> Serialize for (A,) {
+    fn serialize(&self, buf: &mut BytesMut) -> SerRes<()> {
+        self.0.serialize(buf)
+    }
+
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self>
+    where
+        Self: Sized,
+    {
+        Ok((A::deserialize(buf)?,))
+    }
+}
+
+impl<A: Serialize, B: Serialize> Serialize for (A, B) {
+    fn serialize(&self, buf: &mut BytesMut) -> SerRes<()> {
+        self.0.serialize(buf)?;
+        self.1.serialize(buf)
+    }
+
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self>
+    where
+        Self: Sized,
+    {
+        Ok((A::deserialize(buf)?, B::deserialize(buf)?))
     }
 }

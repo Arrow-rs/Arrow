@@ -1,6 +1,6 @@
 use crate::{
     data, int_enum, packets, state,
-    types::{position::Position, varint::VarInt},
+    types::{position::Position, slot::Slot, varint::VarInt, InferredLenByteArray},
     varint_enum,
 };
 
@@ -16,7 +16,10 @@ state! {
         0x06 => ClientCommand,
         0x07 => ClientInformation,
         0x08 => CommandSuggestionsRequest,
-        0x09 => ClickContainerButton
+        0x09 => ClickContainerButton,
+        0x0a => ClickContainer,
+        0x0b => CloseContainer,
+        0x0c => ServerboundPluginMessage
     };
     clientbound {
 
@@ -73,6 +76,22 @@ packets! {
     ClickContainerButton(0x09) {
         window_id: u8,
         button_id: u8
+    };
+    ClickContainer(0x0a) {
+        window_id: u8,
+        state_id: VarInt,
+        slot: i16,
+        button: i8,
+        mode: InventoryOperationMode,
+        slots: (i16, Slot),
+        carried_item: Slot
+    };
+    CloseContainer(0x0b) {
+        window_id: u8
+    };
+    ServerboundPluginMessage(0x0c) {
+        channel: String,
+        data: InferredLenByteArray
     }
 }
 
@@ -98,6 +117,15 @@ varint_enum! {
     MainHand {
         Left = 0,
         Right = 1
+    };
+    InventoryOperationMode {
+        MouseClick = 0,
+        ShiftMouseClick = 1,
+        NumKey = 2,
+        MiddleClick = 3,
+        DropKey = 4,
+        Drag = 5,
+        DoubleClick = 6
     }
 }
 
