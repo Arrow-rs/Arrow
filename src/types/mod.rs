@@ -157,6 +157,44 @@ impl Serialize for i64 {
     }
 }
 
+impl Serialize for f32 {
+    fn serialize(&self, buf: &mut BytesMut) -> SerRes<()> {
+        buf.extend_from_slice(&self.to_be_bytes());
+
+        Ok(())
+    }
+
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self>
+    where
+        Self: Sized,
+    {
+        if buf.remaining() < 4 {
+            return Err(DeserializeError::UnexpectedEof);
+        }
+
+        Ok(buf.get_f32())
+    }
+}
+
+impl Serialize for f64 {
+    fn serialize(&self, buf: &mut BytesMut) -> SerRes<()> {
+        buf.extend_from_slice(&self.to_be_bytes());
+
+        Ok(())
+    }
+
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self>
+    where
+        Self: Sized,
+    {
+        if buf.remaining() < 8 {
+            return Err(DeserializeError::UnexpectedEof);
+        }
+
+        Ok(buf.get_f64())
+    }
+}
+
 impl Serialize for String {
     fn serialize(&self, buf: &mut BytesMut) -> SerRes<()> {
         VarInt(self.len() as i32).serialize(buf)?;

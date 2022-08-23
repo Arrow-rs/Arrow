@@ -1,6 +1,10 @@
+use bytes::BufMut;
+
 use crate::{
-    data, int_enum, packets, state,
-    types::{position::Position, slot::Slot, varint::VarInt, InferredLenByteArray},
+    data,
+    error::DeserializeError,
+    int_enum, packets, state,
+    types::{position::Position, slot::Slot, varint::VarInt, InferredLenByteArray, Serialize},
     varint_enum,
 };
 
@@ -19,7 +23,10 @@ state! {
         0x09 => ClickContainerButton,
         0x0a => ClickContainer,
         0x0b => CloseContainer,
-        0x0c => ServerboundPluginMessage
+        0x0c => ServerboundPluginMessage,
+        0x0d => EditBook,
+        0x0e => QueryEntityTag,
+        0x0f => Interact
     };
     clientbound {
 
@@ -92,6 +99,20 @@ packets! {
     ServerboundPluginMessage(0x0c) {
         channel: String,
         data: InferredLenByteArray
+    };
+    EditBook(0x0d) {
+        slot: VarInt,
+        entries: Vec<String>,
+        title: Option<String>
+    };
+    QueryEntityTag(0x0e) {
+        transaction_id: VarInt,
+        entity_id: VarInt
+    };
+    Interact(0x0f) {
+        entity_id: VarInt,
+        ty: InteractionType,
+        sneaking: bool
     }
 }
 
@@ -126,6 +147,10 @@ varint_enum! {
         DropKey = 4,
         Drag = 5,
         DoubleClick = 6
+    };
+    Hand {
+        MainHand = 0,
+        OffHand = 1
     }
 }
 
@@ -133,5 +158,75 @@ data! {
     ArgumentSignature {
         name: String,
         signature: Vec<u8>
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum InteractionType {
+    Interact(Hand),
+    Attack,
+    InteractAt {
+        target_x: f32,
+        target_y: f32,
+        target_z: f32,
+        hand: Hand,
+    },
+}
+
+impl Serialize for InteractionType {
+    fn serialize(&self, buf: &mut bytes::BytesMut) -> crate::error::SerRes<()> {
+        match self {
+            InteractionType::Interact(hand) => {
+                buf.put_u8(0);
+                hand.serialize(buf)?;
+            }
+            InteractionType::Attack => buf.put_u8(1),
+            InteractionType::InteractAt {
+                target_x,
+                target_y,
+                target_z,
+                hand,
+            } => {
+                buf.put_u8(2);
+                target_x.serialize(buf)?;
+                target_y.serialize(buf)?;
+                target_z.serialize(buf)?;
+                hand.serialize(buf)?;
+            }
+        }
+
+        Ok(())
+    }
+
+    fn deserialize(buf: &mut bytes::BytesMut) -> crate::error::DeRes<Self>
+    where
+        Self: Sized,
+    {
+        let variant = u8::deserialize(buf)?;
+
+        match variant {
+            0 => {
+                let hand = Hand::deserialize(buf)?;
+                Ok(Self::Interact(hand))
+            }
+            1 => Ok(Self::Attack),
+            2 => {
+                let target_x = f32::deserialize(buf)?;
+                let target_y = f32::deserialize(buf)?;
+                let target_z = f32::deserialize(buf)?;
+                let hand = Hand::deserialize(buf)?;
+
+                Ok(Self::InteractAt {
+                    target_x,
+                    target_y,
+                    target_z,
+                    hand,
+                })
+            }
+            _ => Err(DeserializeError::InvalidEnumVariant(
+                "InteractionType",
+                variant as isize,
+            )),
+        }
     }
 }
