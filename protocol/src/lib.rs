@@ -2,6 +2,7 @@ pub(crate) mod macros;
 pub(crate) use macros::*;
 
 pub mod chat;
+pub mod codec;
 pub mod error;
 pub mod handshake;
 pub mod legacy;
@@ -105,6 +106,7 @@ impl Protocol {
             let len = read_encrypted_varint(packet, decryptor)? as usize;
 
             if packet.remaining() < len {
+                packet.reserve(len - packet.remaining());
                 return Err(DeserializeError::UnexpectedEof);
             }
 
@@ -119,6 +121,7 @@ impl Protocol {
             let len = VarInt::deserialize(packet)?.0 as usize;
 
             if packet.remaining() < len {
+                packet.reserve(len - packet.remaining());
                 return Err(DeserializeError::UnexpectedEof);
             }
 

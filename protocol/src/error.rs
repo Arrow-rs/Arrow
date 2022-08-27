@@ -1,4 +1,7 @@
-use std::string::{FromUtf16Error, FromUtf8Error};
+use std::{
+    io,
+    string::{FromUtf16Error, FromUtf8Error},
+};
 
 use rsa::{errors::Error as RsaError, pkcs8::spki::Error as SpkiError};
 use thiserror::Error;
@@ -36,6 +39,8 @@ pub enum DeserializeError {
     ZlibError(String),
     #[error("{0}")]
     NbtError(#[from] nbt::Error),
+    #[error("{0}")]
+    IoError(#[from] io::Error),
 }
 
 #[derive(Error, Debug)]
@@ -48,4 +53,6 @@ pub enum SerializeError {
     RsaError(#[from] RsaError),
     #[error("{0}")]
     NbtError(#[from] nbt::Error),
+    #[error("{0}")]
+    IoError(#[from] io::Error),
 }
