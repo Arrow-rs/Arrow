@@ -1,2 +1,2 @@
 [workspace]
-members = ["arrow-protocol", "mc-server-ping"]
+members = ["protocol", "mc-server-ping"]
