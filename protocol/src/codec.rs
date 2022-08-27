@@ -65,7 +65,7 @@ impl Encoder<Protocol> for Codec {
     type Error = SerializeError;
 
     fn encode(&mut self, item: Protocol, dst: &mut bytes::BytesMut) -> Result<(), Self::Error> {
-        dst.copy_from_slice(
+        dst.extend_from_slice(
             item.serialize(self.compression, self.encryptor.as_mut())?
                 .as_slice(),
         );
