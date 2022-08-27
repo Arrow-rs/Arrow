@@ -35,6 +35,10 @@ impl Codec {
         self.encryptor = Some(Encryptor::new(&key.into(), &key.into()));
         self.decryptor = Some(Decryptor::new(&key.into(), &key.into()));
     }
+
+    pub fn set_state(&mut self, state: State) {
+        self.state = state;
+    }
 }
 
 impl Decoder for Codec {
