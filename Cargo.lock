@@ -47,25 +47,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "arrow-protocol"
-version = "0.1.0"
-source = "git+https://gitlab.com/arrow-rs/arrow-protocol#0322916a444c6a9511d352564447359fc05bf742"
-dependencies = [
- "aes",
- "bytes",
- "cfb8",
- "flate2",
- "hematite-nbt",
- "rand",
- "rsa",
- "serde",
- "serde_json",
- "serde_with",
- "thiserror",
- "uuid",
-]
-
-[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -470,7 +451,7 @@ dependencies = [
 name = "mc-server-ping"
 version = "0.1.0"
 dependencies = [
- "arrow-protocol 0.1.0 (git+https://gitlab.com/arrow-rs/arrow-protocol)",
+ "arrow-protocol",
  "bytes",
  "clap",
 ]

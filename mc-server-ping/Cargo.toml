@@ -6,6 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-arrow-protocol = { git = "https://gitlab.com/arrow-rs/arrow-protocol" }
+arrow-protocol = { path = "../protocol" }
 clap = { version = "3", features = ["derive"] }
 bytes = "1"
