@@ -35,6 +35,7 @@ dependencies = [
  "aes",
  "bytes",
  "cfb8",
+ "clap",
  "flate2",
  "hematite-nbt",
  "rand",
@@ -445,15 +446,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "abb12e687cfb44aa40f41fc3978ef76448f9b6038cad6aef4259d3c095a2382e"
 dependencies = [
  "cfg-if",
-]
-
-[[package]]
-name = "mc-server-ping"
-version = "0.1.0"
-dependencies = [
- "arrow-protocol",
- "bytes",
- "clap",
 ]
 
 [[package]]

@@ -1,2 +1,2 @@
 [workspace]
-members = ["protocol", "mc-server-ping"]
+members = ["protocol"]

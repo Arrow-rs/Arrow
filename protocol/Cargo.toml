@@ -21,3 +21,10 @@ rsa = "0.7.0-pre"
 rand = "0.8"
 cfb8 = "0.8"
 aes = "0.8"
+
+[dev-dependencies]
+# Needed for the mc-server-ping example
+clap = { version = "3", features = ["derive"] }
+
+[[example]]
+name = "mc-server-ping"
