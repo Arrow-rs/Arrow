@@ -26,7 +26,23 @@ state! {
         0x0c => ServerboundPluginMessage,
         0x0d => EditBook,
         0x0e => QueryEntityTag,
-        0x0f => Interact
+        0x0f => Interact,
+        0x10 => JigsawGenerate,
+        0x11 => ServerboundKeepAlive,
+        0x12 => LockDifficulty,
+        0x13 => SetPlayerPosition,
+        0x14 => SetPlayerPositionAndRotation,
+        0x15 => SetPlayerRotation,
+        0x16 => SetPlayerOnGround,
+        0x17 => ServerboundMoveVehicle,
+        0x18 => PaddleBoat,
+        0x19 => PickItem,
+        0x1a => PlaceRecipe,
+        0x1b => PlayerAbilities,
+        0x1c => PlayerAction,
+        0x1d => PlayerCommand,
+        0x1e => PlayerInput,
+        0x1f => Pong
     };
     clientbound {
 
@@ -112,6 +128,81 @@ packets! {
         entity_id: VarInt,
         ty: InteractionType,
         sneaking: bool
+    };
+    JigsawGenerate(0x10) {
+        position: Position,
+        levels: VarInt,
+        keep_jigsaws: bool
+    };
+    ServerboundKeepAlive(0x11) {
+        id: i64
+    };
+    LockDifficulty(0x12) {
+        locked: bool
+    };
+    SetPlayerPosition(0x13) {
+        x: f64,
+        feet_y: f64,
+        z: f64,
+        on_ground: bool
+    };
+    SetPlayerPositionAndRotation(0x14) {
+        x: f64,
+        feet_y: f64,
+        z: f64,
+        yaw: f32,
+        pitch: f32,
+        on_ground: bool
+    };
+    SetPlayerRotation(0x15) {
+        yaw: f32,
+        pitch: f32,
+        on_ground: bool
+    };
+    SetPlayerOnGround(0x16) {
+        on_ground: bool
+    };
+    ServerboundMoveVehicle(0x17) {
+        x: f64,
+        y: f64,
+        z: f64,
+        yaw: f32,
+        pitch: f32
+    };
+    PaddleBoat(0x18) {
+        left_paddle: bool,
+        right_paddle: bool
+    };
+    PickItem(0x19) {
+        slot: VarInt
+    };
+    PlaceRecipe(0x1a) {
+        window_id: i8,
+        // TODO: Identifier
+        recipe: String,
+        make_all: bool
+    };
+    PlayerAbilities(0x1b) {
+        flags: PlayerAbilityFlags
+    };
+    PlayerAction(0x1c) {
+        status: PlayerActionStatus,
+        position: Position,
+        face: Face,
+        sequence: VarInt
+    };
+    PlayerCommand(0x1d) {
+        player_id: VarInt,
+        action_id: PlayerCommandAction,
+        jump_boost: VarInt
+    };
+    PlayerInput(0x1e) {
+        sideways: f32,
+        forward: f32,
+        flags: PlayerInputFlags
+    };
+    Pong(0x1f) {
+        id: i32
     }
 }
 
@@ -121,6 +212,14 @@ int_enum! {
         Easy = 1,
         Normal = 2,
         Hard = 3
+    };
+    Face(u8) {
+        Bottom = 0,
+        Top = 1,
+        North = 2,
+        South = 3,
+        West = 4,
+        East = 5
     }
 }
 
@@ -150,6 +249,26 @@ varint_enum! {
     Hand {
         MainHand = 0,
         OffHand = 1
+    };
+    PlayerActionStatus {
+        StartedDigging = 0,
+        CancelledDigging = 1,
+        FinishedDigging = 2,
+        DropItemStack = 3,
+        DropItem = 4,
+        UpdateHeldItemState = 5,
+        SwapItemInHand = 6
+    };
+    PlayerCommandAction {
+        StartSneaking = 0,
+        StopSneaking = 1,
+        LeaveBed = 2,
+        StartSprinting = 3,
+        StopSprinting = 4,
+        StartHorseJump = 5,
+        StopHorseJump = 6,
+        OpenHorseInventory = 7,
+        StartFlyingWithElytra = 8
     }
 }
 
@@ -169,6 +288,13 @@ bitflags! {
         const LEFT_PANTS_LEG = 0x10;
         const RIGHT_PANTS_LEG = 0x20;
         const HAT = 0x40;
+    };
+    PlayerAbilityFlags(u8) {
+        const FLYING = 0x02;
+    };
+    PlayerInputFlags(u8) {
+        const JUMP = 0x01;
+        const UNMOUNT = 0x02;
     }
 }
 
