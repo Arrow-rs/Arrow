@@ -1,7 +1,7 @@
 use bytes::BufMut;
 
 use crate::{
-    data,
+    bitflags, data,
     error::DeserializeError,
     int_enum, packets, state,
     types::{position::Position, slot::Slot, varint::VarInt, InferredLenByteArray, Serialize},
@@ -70,8 +70,7 @@ packets! {
         view_distance: u8,
         chat_mode: ChatMode,
         chat_colors: bool,
-        // TODO: Bitmask
-        displayed_skin_parts: u8,
+        displayed_skin_parts: SkinParts,
         main_hand: MainHand,
         enable_text_filtering: bool,
         allow_server_listings: bool
@@ -158,6 +157,18 @@ data! {
     ArgumentSignature {
         name: String,
         signature: Vec<u8>
+    }
+}
+
+bitflags! {
+    SkinParts(u8) {
+        const CAPE = 0x01;
+        const JACKET = 0x02;
+        const LEFT_SLEEVE = 0x04;
+        const RIGHT_SLEEVE = 0x08;
+        const LEFT_PANTS_LEG = 0x10;
+        const RIGHT_PANTS_LEG = 0x20;
+        const HAT = 0x40;
     }
 }
 

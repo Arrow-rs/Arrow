@@ -33,6 +33,7 @@ name = "arrow-protocol"
 version = "0.1.0"
 dependencies = [
  "aes",
+ "bitflags",
  "bytes",
  "cfb8",
  "clap",

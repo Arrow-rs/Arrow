@@ -214,7 +214,35 @@ macro_rules! nbt_data {
     }
 }
 
-pub(crate) use {data, int_enum, nbt_data, packet, packets, state, varint_enum};
+macro_rules! bitflags {
+    (
+        $(
+            $name:ident ($ty:ident) {
+                $(const $field:ident = $value:literal;)*
+            }
+        );+
+    ) => {
+        $(
+            bitflags::bitflags! {
+                pub struct $name: $ty {
+                    $(const $field = $value;)*
+                }
+            }
+
+            impl $crate::types::Serialize for $name {
+                fn serialize(&self, buf: &mut bytes::BytesMut) -> $crate::error::SerRes<()> {
+                    self.bits().serialize(buf)
+                }
+
+                fn deserialize(buf: &mut bytes::BytesMut) -> $crate::error::DeRes<Self> {
+                    Ok(Self::from_bits_truncate(<$ty>::deserialize(buf)?))
+                }
+            }
+        )+
+    };
+}
+
+pub(crate) use {bitflags, data, int_enum, nbt_data, packet, packets, state, varint_enum};
 
 mod test {
     #[test]
