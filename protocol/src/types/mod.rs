@@ -2,8 +2,6 @@ pub mod position;
 pub mod slot;
 pub mod varint;
 
-use std::fmt;
-
 use bytes::{Buf, BufMut, BytesMut};
 use rsa::{
     pkcs8::{DecodePublicKey, EncodePublicKey},
