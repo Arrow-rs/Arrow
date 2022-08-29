@@ -260,14 +260,12 @@ impl<T: Serialize> Serialize for Vec<T> {
 }
 
 #[derive(Debug, Clone)]
-pub enum Either<L: fmt::Debug + Clone, R: fmt::Debug + Clone> {
+pub enum Either<L, R> {
     Left(L),
     Right(R),
 }
 
-impl<L: Serialize + fmt::Debug + Clone, R: Serialize + fmt::Debug + Clone> Serialize
-    for Either<L, R>
-{
+impl<L: Serialize, R: Serialize> Serialize for Either<L, R> {
     fn serialize(&self, buf: &mut BytesMut) -> SerRes<()> {
         match self {
             Either::Left(l) => {
