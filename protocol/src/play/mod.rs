@@ -1,7 +1,9 @@
 pub mod clientbound;
+pub mod common;
 pub mod serverbound;
 
 pub use clientbound::*;
+pub use common::*;
 pub use serverbound::*;
 
 use crate::macros::state;
@@ -43,6 +45,9 @@ state! {
         0x1f => Pong
     };
     clientbound {
-
+        0x00 => SpawnEntity,
+        0x01 => SpawnExperienceOrb,
+        0x02 => SpawnPlayer,
+        0x03 => EntityAnimation
     }
 }

@@ -293,6 +293,32 @@ impl<L: Serialize, R: Serialize> Serialize for Either<L, R> {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct Angle(u8);
+
+impl Angle {
+    pub fn from_degrees(angle: f32) -> Self {
+        Self((angle * (256.0 / 360.0)) as u8)
+    }
+
+    pub fn to_degrees(&self) -> f32 {
+        self.0 as f32 / (256.0 / 360.0)
+    }
+}
+
+impl Serialize for Angle {
+    fn serialize(&self, buf: &mut BytesMut) -> SerRes<()> {
+        self.0.serialize(buf)
+    }
+
+    fn deserialize(buf: &mut BytesMut) -> DeRes<Self>
+    where
+        Self: Sized,
+    {
+        Ok(Self(u8::deserialize(buf)?))
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct InferredLenByteArray(pub Vec<u8>);
 
